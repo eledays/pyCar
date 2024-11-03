@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden;
+}
+
+body {
+    background-color: #252525;
+    height: 100vh;
+}
+
+#codeEditor {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 44vw;
+    height: 80vh;
+    outline: none;
+    border: none;
+    background-color: #252525;
+    padding: 3vh;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.btn_field {
+    position: fixed;
+    top: 90vh;
+    right: 0;
+    align-items: center;
+    width: 50vw;
+    justify-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+#sendButton {
+    outline: none;
+    border: .2vh solid white;
+    background-color: transparent;
+    padding: 1vh 3vh;
+    color: #ffffff;
+    font-size: 1.2em;
+    cursor: pointer;
+    border-radius: .5vh;
+}
