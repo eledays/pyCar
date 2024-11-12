@@ -1,15 +1,24 @@
 * {
     margin: 0;
     padding: 0;
-    overflow-y: hidden;
 }
 
 body {
-    background-color: #252525;
+    background-color: #000000;
     height: 100vh;
+    overflow-y: hidden;
 }
 
-#codeEditor {
+.CodeMirror {
+    overflow-y: visible;
+    position: fixed;
+    top: 0; right: 0;
+    width: 50vw;
+    height: 80vh;
+    font-size: 1.2em;
+}
+
+/* .CodeMirror {
     position: fixed;
     top: 0;
     right: 0;
@@ -21,7 +30,8 @@ body {
     padding: 3vh;
     color: #fff;
     font-size: 1.2em;
-}
+    overflow-x: hidden;
+} */
 
 .btn_field {
     position: fixed;
