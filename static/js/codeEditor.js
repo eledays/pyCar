@@ -1,8 +1,30 @@
 let btn = document.querySelector('#sendButton');
 let textarea = document.querySelector('#codeEditor');
 
+const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+    lineNumbers: true,
+    mode: 'python',
+    theme: 'pycar-theme',
+    lineWrapping: true, 
+    tabSize: 4,
+    indentUnit: 4,
+    indentWithTabs: false,
+    smartIndent: true,
+    extraKeys: { "Ctrl-Space": "autocomplete" },
+    autoCloseBrackets: true,
+    hintOptions: {
+        completeSingle: false  // Отключаем автоматическое дополнение по первому совпадению
+    }
+});
+
+editor.on('inputRead', function(cm, change) {
+    if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
+        CodeMirror.commands.autocomplete(cm);
+    }
+});
+
 btn.addEventListener('click', () => {
-    let code = textarea.value;
+    let code = editor.getValue();
 
     console.log(JSON.stringify({ code: code }));
 
@@ -36,24 +58,4 @@ btn.addEventListener('click', () => {
     })();
 })
 
-const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
-    lineNumbers: true,
-    mode: 'python',
-    theme: 'pycar-theme',
-    lineWrapping: true, 
-    tabSize: 4,
-    indentUnit: 4,
-    indentWithTabs: false,
-    smartIndent: true,
-    extraKeys: { "Ctrl-Space": "autocomplete" },
-    autoCloseBrackets: true,
-    hintOptions: {
-        completeSingle: false  // Отключаем автоматическое дополнение по первому совпадению
-    }
-});
-
-editor.on('inputRead', function(cm, change) {
-    if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
-        CodeMirror.commands.autocomplete(cm);
-    }
-});
+editor.setValue('# Переменная car содержит экземпляр класса Car и относится к машине, расположенной слева\n\ncar.engine_start()  # запустить двигатель (с незапущенным не поедет)\ncar.set_power(10)  # задать скорость движения\n')
