@@ -11,11 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
 
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-
-    <script src="{{ url_for('static', filename='js/phaser.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
     <div class="code">
@@ -34,5 +30,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
     <script src="{{ url_for('static', filename='js/codeEditor.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='libs/matter-js/build/matter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

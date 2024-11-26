@@ -41,7 +41,9 @@ btn.addEventListener('click', () => {
             })
 
             if (response.ok) {
-                const r = await response.json()
+                
+                const r = await response.json();
+                console.log(r);
                 if (r.error) {
                     alert(r.error);
                 }
@@ -58,4 +60,4 @@ btn.addEventListener('click', () => {
     })();
 })
 
-editor.setValue('# Переменная car содержит экземпляр класса Car и относится к машине, расположенной слева\n\ncar.engine_start()  # запустить двигатель (с незапущенным не поедет)\ncar.set_power(10)  # задать скорость движения\n')
+editor.setValue('# Переменная car содержит экземпляр класса Car и относится к машине, расположенной слева\n\ncar.engine_start()  # запустить двигатель (с незапущенным не поедет)\ncar.set_power(.5)  # задать мощность двигателя\ncar.rotate(0)  # задать угол поворота колес в градусах (не более 30 по модулю)')

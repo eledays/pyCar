@@ -8,6 +8,7 @@ import game_objects
 app = Flask(__name__)
 car = game_objects.Car()
 DEFAULT_VARS = {'car': car}
+REQUIRED_CAR_ARGS = ['engine_started', 'power', 'wheel_angle']
 
 
 @app.route('/')
@@ -33,8 +34,18 @@ def exec_code():
     for k, v in vars.items():
         if k.startswith('__') or str(v).startswith('<class'):
             continue
-        if isinstance(v, game_objects.Car):
-            user_vars[k] = v.to_dict()
+        if k == 'car' and isinstance(v, game_objects.Car):
+            v = v.to_dict()
+            print(v)
+
+            if 'error' in v and v['error']:
+                return jsonify({'error': v['error']})
+            
+            for arg in REQUIRED_CAR_ARGS:
+                if arg not in v:
+                    return jsonify({'error': f'У объекта {k} отсуствует обязательный атрибут {arg}'})
+
+            user_vars[k] = v
         else:
             user_vars[k] = str(v)
 
