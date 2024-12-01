@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: #000000;
+    background-color: #0e0e0e;
     height: 100vh;
     overflow-y: hidden;
 }
@@ -13,9 +13,10 @@ body {
     overflow-y: visible;
     position: fixed;
     top: 0; right: 0;
-    width: 50vw;
+    width: calc(50vw - 20px);
     height: 80vh;
     font-size: 1.2em;
+    border-bottom-left-radius: 20px;
 }
 
 /* .CodeMirror {
@@ -50,7 +51,7 @@ body {
     background-color: transparent;
     padding: 1vh 3vh;
     color: #ffffff;
-    font-size: 1.2em;
+    font-size: 18px;
     cursor: pointer;
-    border-radius: .5vh;
+    border-radius: 10px;
 }

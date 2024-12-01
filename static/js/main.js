@@ -22,13 +22,13 @@ Render.run(render);
 Runner.run(Runner.create(), engine);
 
 // Создаём границы
-const borders = [
-    Bodies.rectangle(width / 2, 0, width, 50, { isStatic: true }),
-    Bodies.rectangle(width / 2, height, width, 50, { isStatic: true }),
-    Bodies.rectangle(0, height / 2, 50, height, { isStatic: true }),
-    Bodies.rectangle(width, height / 2, 50, height, { isStatic: true }),
-];
-World.add(world, borders);
+// const borders = [
+//     Bodies.rectangle(width / 2, 0, width, 50, { isStatic: true }),
+//     Bodies.rectangle(width / 2, height, width, 50, { isStatic: true }),
+//     Bodies.rectangle(0, height / 2, 50, height, { isStatic: true }),
+//     Bodies.rectangle(width, height / 2, 50, height, { isStatic: true }),
+// ];
+// World.add(world, borders);
 
 // Создаём автомобиль
 const carWidth = 80;

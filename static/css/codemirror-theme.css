@@ -1,6 +1,7 @@
 .cm-s-pycar-theme.CodeMirror {
     background: #252525;
-    color: #f2f6f8
+    color: #f2f6f8;
+    padding: 20px 10px;
 }
 
 .cm-s-pycar-theme div.CodeMirror-selected {
@@ -34,7 +35,7 @@
 }
 
 .cm-s-pycar-theme .CodeMirror-linenumber {
-    color: #727272
+    color: #ffffff18;
 }
 
 .cm-s-pycar-theme .CodeMirror-cursor {
