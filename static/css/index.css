@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
 * {
     margin: 0;
     padding: 0;
+    font-family: 'Manrope', sans-serif;
 }
 
 body {
@@ -14,29 +17,33 @@ body {
     position: fixed;
     top: 0; right: 0;
     width: calc(50vw - 20px);
-    height: 80vh;
+    height: calc(80vh - 40px);
     font-size: 1.2em;
     border-bottom-left-radius: 20px;
 }
 
-/* .CodeMirror {
+.CodeMirror * {
+    font-family: monospace;
+}
+
+#output {
     position: fixed;
-    top: 0;
-    right: 0;
-    width: 44vw;
-    height: 80vh;
-    outline: none;
-    border: none;
-    background-color: #252525;
-    padding: 3vh;
+    top: 80vh; right: 0;
+    width: calc(50vw - 20px);
+    height: 20vh;
+    padding: 10px;
     color: #fff;
-    font-size: 1.2em;
-    overflow-x: hidden;
-} */
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+#output.error {
+    color: rgb(255, 95, 95);
+}
 
 .btn_field {
     position: fixed;
-    top: 90vh;
+    top: 70vh;
     right: 0;
     align-items: center;
     width: 50vw;
@@ -54,4 +61,21 @@ body {
     font-size: 18px;
     cursor: pointer;
     border-radius: 10px;
+}
+
+.loading_block {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0; left: 0;
+    background-color: #000000;
+    z-index: 1000;
+    color: #fff;
+}
+
+.loading_block p {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: normal;
 }

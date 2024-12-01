@@ -14,12 +14,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
+    <div class="loading_block">
+        <p>Загрузка...</p>
+    </div>
+
     <div class="code">
         <textarea id="codeEditor"></textarea>
+        <p id="output"></p>
         <div class="btn_field">
             <button id="sendButton">Запустить</button>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
@@ -29,6 +36,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
+    <script src="{{ url_for('static', filename='js/basePythonCode.js') }}"></script>
     <script src="{{ url_for('static', filename='js/codeEditor.js') }}"></script>
 
     <script src="{{ url_for('static', filename='libs/matter-js/build/matter.js') }}"></script>
