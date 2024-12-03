@@ -40,4 +40,8 @@ class Car:
 
 car = Car()
 `;
-basePythonCode = `import sys`;
+basePythonCode = `
+import asyncio
+
+async def sleep(seconds):
+    await asyncio.sleep(seconds)`;

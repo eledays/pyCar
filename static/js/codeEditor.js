@@ -24,11 +24,18 @@ editor.on('inputRead', function(cm, change) {
     }
 });
 
-btn.addEventListener('click', () => {
+btn.addEventListener('click', async () => {
+    old_style = btn.style.display;
+    btn.style.display = 'none';
+
     output_block.innerHTML = '';
     let code = editor.getValue();
-    evaluatePython(code);
-})
+    console.log(code);
+    
+    await evaluatePython(code);
+
+    btn.style.display = old_style;
+});
 
 editor.setValue('# Переменная car содержит экземпляр класса Car и относится к машине, расположенной слева\n\ncar.engine_start()  # запустить двигатель (с незапущенным не поедет)\ncar.set_power(.5)  # задать мощность двигателя\ncar.rotate(0)  # задать угол поворота колес в градусах (не более 30 по модулю)');
 
