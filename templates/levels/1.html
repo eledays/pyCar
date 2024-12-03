@@ -1,0 +1,42 @@
+<!-- Начало -->
+{% extends "index.html" %}
+{% block extraVars %}
+    <script>
+        basePythonCode = `
+import asyncio
+import math
+
+
+class Car:
+
+    def __init__(self):
+        self.power = 0
+        self.engine_started = True
+        self.wheel_angle = 0
+
+        self.error = None
+
+    async def move(self):
+        self.power = 1
+        await sleep(1)
+        self.power = 0
+
+
+async def sleep(seconds):
+    await asyncio.sleep(seconds)
+    return True
+
+
+car = Car()
+`;
+        baseCodeEditorText = `# Привет! (этот текст будет в красивых плашках)
+# На первом уровне ты заставишь машину слева поехать
+
+# Чтобы взаимодействовать с машиной есть объект car, у которого есть различные функции (инструкции)
+# Чтобы вызвать инструкцию, нужно обратиться к машине, написав car
+# Теперь через точку можно вызвать функцию, например, давай запуставим машину проехать вперёд
+car.move()
+
+# Нажми кноку "Запустить" снизу и посмотри, что произойдет`;
+    </script>
+{% endblock %}

@@ -1,4 +1,8 @@
-basePythonCode = `
+<!-- Третий уровень -->
+{% extends "index.html" %}
+{% block extraVars %}
+    <script>
+        basePythonCode = `
 import asyncio
 import math
 
@@ -27,20 +31,6 @@ class Car:
         else:
             self.error = 'Угол поворота должен быть в диапазоне от -30 до 30 градусов'
 
-    def to_dict(self):
-        r = {}
-
-        if self.error:
-            r = {'error': self.error}
-            self.error = None
-            return r
-
-        for name, value in vars(self).items():
-            # name = name.replace(f'_{self.__class__.__name__}__', '')
-            r[name] = value
-
-        return r
-
 
 async def sleep(seconds):
     await asyncio.sleep(seconds)
@@ -49,3 +39,8 @@ async def sleep(seconds):
 
 car = Car()
 `;
+        baseCodeEditorText = `car.engine_start()
+car.set_power(.5)
+car.rotate(0)`;
+    </script>
+{% endblock %}

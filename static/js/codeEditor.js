@@ -40,7 +40,7 @@ btn.addEventListener('click', async () => {
     btn.style.display = old_style;
 });
 
-editor.setValue('car.engine_start()\ncar.set_power(.5)\ncar.rotate(0)');
+editor.setValue(baseCodeEditorText);
 
 async function load() {
     let pyodide = await loadPyodide();

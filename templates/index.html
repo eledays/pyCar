@@ -26,6 +26,8 @@
         </div>
     </div>
 
+    {% block extraVars %}{% endblock %}
+
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -35,8 +37,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
-
-    <script src="{{ url_for('static', filename='js/basePythonCode.js') }}"></script>
+    
     <script src="{{ url_for('static', filename='js/codeEditor.js') }}"></script>
 
     <script src="{{ url_for('static', filename='libs/matter-js/build/matter.js') }}"></script>

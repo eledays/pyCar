@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pyCar — Главная</title>
+
+    <link rel="stylesheet" href="static/css/main.css">
+</head>
+<body>
+    <div class="cont">
+        <h1>pyCar</h1>
+        <div class="levels">
+            {% for level, name in levels %}
+                <a href="/{{ level }}" class="level" id="{{ level }}">{{ level }}. {{ name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

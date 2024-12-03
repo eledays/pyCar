@@ -76,13 +76,9 @@ Events.on(engine, 'beforeUpdate', () => {
 
     if (window.mainCar) {
         if (window.mainCar.power && window.mainCar.power > 0) {
-            console.log(acceleration * window.mainCar.power * window.mainCar.engine_started);
-
             speed = Math.min(speed + acceleration * window.mainCar.power * window.mainCar.engine_started, maxSpeed);
         }
-        else if (window.mainCar.power && window.mainCar.power < 0) {
-            console.log(acceleration * window.mainCar.power * window.mainCar.engine_started);
-            
+        else if (window.mainCar.power && window.mainCar.power < 0) {            
             speed = Math.max(speed + acceleration * window.mainCar.power * window.mainCar.engine_started, -maxSpeed);
         }
         else {
@@ -90,9 +86,9 @@ Events.on(engine, 'beforeUpdate', () => {
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
         }
 
-        if (wheelAngle < window.mainCar.wheel_angle) {
+        if (wheelAngle != 0 < window.mainCar.wheel_angle != 0) {
             wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
-        } else if (wheelAngle < window.mainCar.wheel_angle) {
+        } else if (wheelAngle != 0 < window.mainCar.wheel_angle != 0) {
             wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
         } else {
             wheelAngle *= 0.9;

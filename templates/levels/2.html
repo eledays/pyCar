@@ -1,0 +1,57 @@
+<!-- Продолжение -->
+{% extends "index.html" %}
+{% block extraVars %}
+    <script>
+        basePythonCode = `
+import asyncio
+import math
+
+
+class Car:
+
+    def __init__(self):
+        self.power = 0
+        self.engine_started = True
+        self.wheel_angle = 0
+
+        self.error = None
+
+    async def forward(self):
+        self.power = 1
+        await sleep(1)
+        self.power = 0
+
+    async def backward(self):
+        self.power = -1
+        await sleep(1)
+        self.power = 0
+
+    async def right(self):
+        self.wheel_angle = 30
+        self.power = 1
+        await sleep(1)
+        self.power = 0
+        self.wheel_angle = 0
+
+    async def left(self):
+        self.wheel_angle = -30
+        self.power = 1
+        await sleep(1)
+        self.power = 0
+        self.wheel_angle = 0
+
+
+async def sleep(seconds):
+    await asyncio.sleep(seconds)
+    return True
+
+
+car = Car()
+`;
+        baseCodeEditorText = `# Теперь ты можешь управлять машиной более точно
+        
+# Выполни функцию forward, backward, right или left у car, чтобы посмотреть, что они делают
+
+`;
+    </script>
+{% endblock %}
