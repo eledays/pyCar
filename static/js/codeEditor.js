@@ -30,6 +30,9 @@ btn.addEventListener('click', async () => {
 
     output_block.innerHTML = '';
     let code = editor.getValue();
+
+    code = code.replace('sleep(', 'await sleep(');
+
     console.log(code);
     
     await evaluatePython(code);
@@ -37,7 +40,7 @@ btn.addEventListener('click', async () => {
     btn.style.display = old_style;
 });
 
-editor.setValue('# Переменная car содержит экземпляр класса Car и относится к машине, расположенной слева\n\ncar.engine_start()  # запустить двигатель (с незапущенным не поедет)\ncar.set_power(.5)  # задать мощность двигателя\ncar.rotate(0)  # задать угол поворота колес в градусах (не более 30 по модулю)');
+editor.setValue('car.engine_start()\ncar.set_power(.5)\ncar.rotate(0)');
 
 async function load() {
     let pyodide = await loadPyodide();
@@ -47,6 +50,10 @@ async function load() {
     document.querySelector('.loading_block').remove();
 
     pyodide.runPython(basePythonCode);
+
+    setInterval(async () => {
+        window.mainCar = pyodide.globals.get('car').toJs();
+    }, 50);
 
     return pyodide;
 };

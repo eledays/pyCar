@@ -1,4 +1,8 @@
 basePythonCode = `
+import asyncio
+import math
+
+
 class Car:
 
     def __init__(self):
@@ -38,10 +42,10 @@ class Car:
         return r
 
 
+async def sleep(seconds):
+    await asyncio.sleep(seconds)
+    return True
+
+
 car = Car()
 `;
-basePythonCode = `
-import asyncio
-
-async def sleep(seconds):
-    await asyncio.sleep(seconds)`;
