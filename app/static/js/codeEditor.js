@@ -43,6 +43,11 @@ btn.addEventListener('click', async () => {
 editor.setValue(baseCodeEditorText);
 
 async function load() {
+    if (window.localStorage.getItem('no_wasm')) {
+        document.querySelector('.loading_block').remove();
+        return;
+    }
+
     let pyodide = await loadPyodide();
     pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str})
 
@@ -61,6 +66,8 @@ async function load() {
 let pyodideReadyPromise = load();
 
 async function evaluatePython(code) {
+    if (window.localStorage.getItem('no_wasm')) return;
+
     let pyodide = await pyodideReadyPromise;
     try {
         let output = await pyodide.runPythonAsync(code);

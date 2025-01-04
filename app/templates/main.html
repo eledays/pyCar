@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="static/css/main.css">
 </head>
 <body>
+    <button id="wasmBtn">disable wasm</button>
     <div class="cont">
         <h1>pyCar</h1>
         <div class="levels">
@@ -16,5 +17,18 @@
             {% endfor %}
         </div>
     </div>
+
+    <script>
+        var wasmBtn = document.getElementById("wasmBtn");
+        wasmBtn.addEventListener("click", function() {
+            if (window.localStorage.getItem("no_wasm") === "true") {
+                window.localStorage.setItem("no_wasm", "false");
+                wasmBtn.innerText = 'disable wasm';
+            } else {
+                window.localStorage.setItem("no_wasm", "true");
+                wasmBtn.innerText = 'enable wasm';
+            }
+        });
+    </script>
 </body>
 </html>
