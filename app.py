@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 import sys
 from io import StringIO
 import os
@@ -31,7 +31,11 @@ def main():
 
 @app.route('/<int:level_id>')
 def level(level_id):
-    return render_template(f'levels/{level_id}.html')
+    levels = sorted([int(e.rstrip('.html')) for e in os.listdir('templates/levels')])
+    if level_id in levels:
+        return render_template(f'levels/{level_id}.html')
+    else:
+        return redirect('/')
 
 
 if __name__ == '__main__':

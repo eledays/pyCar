@@ -74,21 +74,21 @@ Events.on(engine, 'beforeUpdate', () => {
     speed = (currentSpeedX * directionX + currentSpeedY * directionY);
     
 
-    if (window.mainCar) {
-        if (window.mainCar.power && window.mainCar.power > 0) {
-            speed = Math.min(speed + acceleration * window.mainCar.power * window.mainCar.engine_started, maxSpeed);
+    if (window.carControl) {
+        if (window.carControl.power && window.carControl.power > 0) {
+            speed = Math.min(speed + acceleration * window.carControl.power * window.carControl.engine_started, maxSpeed);
         }
-        else if (window.mainCar.power && window.mainCar.power < 0) {            
-            speed = Math.max(speed + acceleration * window.mainCar.power * window.mainCar.engine_started, -maxSpeed);
+        else if (window.carControl.power && window.carControl.power < 0) {            
+            speed = Math.max(speed + acceleration * window.carControl.power * window.carControl.engine_started, -maxSpeed);
         }
         else {
             if (speed > 0) speed = Math.max(speed - deceleration, 0);
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
         }
 
-        if (wheelAngle != 0 < window.mainCar.wheel_angle != 0) {
+        if (wheelAngle != 0 < window.carControl.wheel_angle != 0) {
             wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
-        } else if (wheelAngle != 0 < window.mainCar.wheel_angle != 0) {
+        } else if (wheelAngle != 0 < window.carControl.wheel_angle != 0) {
             wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
         } else {
             wheelAngle *= 0.9;
@@ -110,12 +110,6 @@ Events.on(engine, 'beforeUpdate', () => {
     Body.setVelocity(car, { x: velocityX, y: velocityY });
 });
 
-const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
-
-document.addEventListener('keydown', (event) => {
-    if (keys[event.code] !== undefined) keys[event.code] = true;
-});
-
-document.addEventListener('keyup', (event) => {
-    if (keys[event.code] !== undefined) keys[event.code] = false;
-});
+function levelEnd() {
+    window.location.href = `/${levelId + 1}`;
+}

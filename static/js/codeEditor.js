@@ -52,7 +52,7 @@ async function load() {
     pyodide.runPython(basePythonCode);
 
     setInterval(async () => {
-        window.mainCar = pyodide.globals.get('car').toJs();
+        window.carControl = pyodide.globals.get('car').toJs();
     }, 50);
 
     return pyodide;

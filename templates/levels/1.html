@@ -2,6 +2,8 @@
 {% extends "index.html" %}
 {% block extraVars %}
     <script>
+        var levelId = 1;
+
         basePythonCode = `
 import asyncio
 import math
@@ -38,5 +40,11 @@ car = Car()
 car.move()
 
 # Нажми кноку "Запустить" снизу и посмотри, что произойдет`;
+
+        setInterval(() => {
+            if (car.velocity.x != 0 || car.velocity.y != 0) {
+                levelEnd();
+            }
+        }, 500);
     </script>
 {% endblock %}
