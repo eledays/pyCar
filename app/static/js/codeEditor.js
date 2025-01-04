@@ -1,6 +1,5 @@
-let btn = document.querySelector('#sendButton');
-let textarea = document.querySelector('#codeEditor');
-let output_block = document.querySelector('.code #output');
+var btn = document.querySelector('#sendButton');
+var output_block = document.querySelector('.code #output');
 
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     lineNumbers: true,
@@ -17,6 +16,8 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
         completeSingle: false  // Отключаем автоматическое дополнение по первому совпадению
     }
 });
+
+var cmElement = document.querySelector('.codeEditor');
 
 editor.on('inputRead', function(cm, change) {
     if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
@@ -43,7 +44,7 @@ btn.addEventListener('click', async () => {
 editor.setValue(baseCodeEditorText);
 
 async function load() {
-    if (window.localStorage.getItem('no_wasm')) {
+    if (window.localStorage.getItem('no_wasm') === true) {
         document.querySelector('.loading_block').remove();
         return;
     }
@@ -66,16 +67,30 @@ async function load() {
 let pyodideReadyPromise = load();
 
 async function evaluatePython(code) {
-    if (window.localStorage.getItem('no_wasm')) return;
+    if (window.localStorage.getItem('no_wasm') === true) return;
 
     let pyodide = await pyodideReadyPromise;
+    let cm = document.querySelector('.CodeMirror')
     try {
         let output = await pyodide.runPythonAsync(code);
-        console.log(output);
+        if (output) {
+            cm.style.transition = '.5s';
+            cm.style.height = '70%';
+            setTimeout(() => {
+                cm.style.transition = 'none';
+            }, 500);
+        }
         output_block.classList.remove('error');
     } catch (err) {
         console.log(err);
         output_block.innerHTML = err;
+        if (err) {
+            cm.style.transition = '.5s';
+            cm.style.height = '70%';
+        }
+        setTimeout(() => {
+            cm.style.transition = 'none';
+        }, 500);
         output_block.classList.add('error');
     }
 }

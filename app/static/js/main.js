@@ -111,5 +111,9 @@ Events.on(engine, 'beforeUpdate', () => {
 });
 
 function levelEnd() {
-    window.location.href = `/${levelId + 1}`;
+    document.getElementById('nextLevelButton').hidden = false;
 }
+
+document.getElementById('nextLevelButton').addEventListener('click', () => {
+    window.location.href = `/${levelId + 1}`;
+});
