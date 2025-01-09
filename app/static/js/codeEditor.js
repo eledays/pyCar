@@ -1,4 +1,4 @@
-var btn = document.querySelector('#sendButton');
+var runCodeButton = document.querySelector('#sendButton');
 var output_block = document.querySelector('.code #output');
 
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
@@ -17,28 +17,22 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     }
 });
 
-var cmElement = document.querySelector('.codeEditor');
-
 editor.on('inputRead', function(cm, change) {
     if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
         CodeMirror.commands.autocomplete(cm);
     }
 });
 
-btn.addEventListener('click', async () => {
-    old_style = btn.style.display;
-    btn.style.display = 'none';
+runCodeButton.addEventListener('click', async () => {
+    if (runCodeButton.classList.contains('deactivated')) return;
+    runCodeButton.classList.add('deactivated');
 
     output_block.innerHTML = '';
     let code = editor.getValue();
-
-    code = code.replace('sleep(', 'await sleep(');
-
-    console.log(code);
     
     await evaluatePython(code);
 
-    btn.style.display = old_style;
+    runCodeButton.classList.remove('deactivated');
 });
 
 editor.setValue(baseCodeEditorText);
@@ -72,6 +66,8 @@ async function evaluatePython(code) {
     let pyodide = await pyodideReadyPromise;
     let cm = document.querySelector('.CodeMirror')
     try {
+        console.log(code);
+        
         let output = await pyodide.runPythonAsync(code);
         if (output) {
             cm.style.transition = '.5s';

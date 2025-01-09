@@ -30,22 +30,35 @@ Runner.run(Runner.create(), engine);
 // ];
 // World.add(world, borders);
 
-// Создаём автомобиль
-const carWidth = 80;
-const carHeight = 40;
+var car = null;
 
-const car = Bodies.rectangle(400, 300, carWidth, carHeight, {
-    friction: 0.02, // Трение
-    render: {
-        sprite: {
-            texture: '/static/assets/car.png', 
-            xScale: carWidth / 100,
-            yScale: carHeight / 50,
-        },
-        fillStyle: null
-    },
-});
-World.add(world, car);
+for (obj of objects) {
+    if (obj.type === 'car') {
+        car = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+            friction: 0.02, // Трение
+            render: {
+                sprite: {
+                    texture: '/static/assets/car.png', 
+                    xScale: obj.width / 100,
+                    yScale: obj.height / 50,
+                },
+                fillStyle: null
+            },
+        });
+        car.width = car.bounds.max.x - car.bounds.min.x;
+        Body.setAngle(car, obj.rotate);
+        World.add(world, car);
+    }
+    else if (obj.type === 'wall') {
+        const wall = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+            isStatic: true,
+            render: {
+                fillStyle: '#fff',
+            }
+        });
+        World.add(world, wall);
+    }
+}
 
 
 let speed = 0;
@@ -59,6 +72,8 @@ const deceleration = 0.05;
 const wheelRotateSpeed = 0.06;
 
 Events.on(engine, 'beforeUpdate', () => {
+    if (car === null) return;
+
     const velocity = Body.getVelocity(car);
     const currentSpeedX = velocity.x;
     const currentSpeedY = velocity.y;
@@ -86,19 +101,20 @@ Events.on(engine, 'beforeUpdate', () => {
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
         }
 
-        if (wheelAngle != 0 < window.carControl.wheel_angle != 0) {
+        if (wheelAngle < window.carControl.wheel_angle) {
             wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
-        } else if (wheelAngle != 0 < window.carControl.wheel_angle != 0) {
+        } else if (wheelAngle > window.carControl.wheel_angle) {
             wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
         } else {
             wheelAngle *= 0.9;
         }
     }
 
-    const turnRadius = carWidth / Math.tan(wheelAngle);
+    const turnRadius = car.width / Math.tan(wheelAngle);
 
     if (Math.abs(wheelAngle) > 0.01) {
         const angularVelocity = speed / turnRadius; // Угловая скорость
+        console.log(car);
         Body.setAngularVelocity(car, angularVelocity);
     } else {
         // Прямолинейное движение
@@ -108,6 +124,14 @@ Events.on(engine, 'beforeUpdate', () => {
     const velocityX = Math.cos(angle) * speed;
     const velocityY = Math.sin(angle) * speed;
     Body.setVelocity(car, { x: velocityX, y: velocityY });
+
+    if (!fixedCamera) {
+        const { x, y } = car.position;
+        Render.lookAt(render, {
+            min: { x: x - width / 2, y: y - height / 2 },
+            max: { x: x + width / 2, y: y + height / 2 },
+        });
+    }
 });
 
 function levelEnd() {

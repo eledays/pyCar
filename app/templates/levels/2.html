@@ -3,49 +3,74 @@
 {% block extraVars %}
     <script>
         var levelId = 2;
+        var fixedCamera = true;
 
         basePythonCode = `
 import asyncio
-import math
+
+
+async def _process_tasks():
+    while True:
+        task = await task_queue.get()
+        await task
+        task_queue.task_done()
+
+
+task_queue = asyncio.Queue()
+asyncio.create_task(_process_tasks())
 
 
 class Car:
-
     def __init__(self):
         self.power = 0
         self.engine_started = True
         self.wheel_angle = 0
 
-        self.error = None
+    def forward(self):
+        task_queue.put_nowait(self._forward())
 
-    async def forward(self):
+    async def _forward(self):
         self.power = 1
-        await sleep(1)
+        await asyncio.sleep(1)
         self.power = 0
 
-    async def backward(self):
+    def backward(self):
+        task_queue.put_nowait(self._backward())
+
+    async def _backward(self):
         self.power = -1
-        await sleep(1)
+        await asyncio.sleep(1)
         self.power = 0
 
-    async def right(self):
+    def right(self):
+        task_queue.put_nowait(self._right())
+
+    async def _right(self):
         self.wheel_angle = 30
         self.power = 1
-        await sleep(1)
+        await asyncio.sleep(1)
         self.power = 0
         self.wheel_angle = 0
 
-    async def left(self):
+    def left(self):
+        task_queue.put_nowait(self._left())
+
+    async def _left(self):
         self.wheel_angle = -30
         self.power = 1
-        await sleep(1)
+        await asyncio.sleep(1)
         self.power = 0
         self.wheel_angle = 0
 
+    def stop(self):
+        task_queue.put_nowait(self._stop())
 
-async def sleep(seconds):
-    await asyncio.sleep(seconds)
-    return True
+    async def _stop(self):
+        self.power = 0
+
+
+def sleep(seconds):
+    task_queue.put_nowait(asyncio.sleep(seconds))
 
 
 car = Car()
@@ -55,5 +80,17 @@ car = Car()
 # Выполни функцию forward, backward, right или left у car, чтобы посмотреть, что они делают
 
 `;
+
+        var objects = [
+            {
+                id: null, 
+                type: 'car', 
+                x: window.innerWidth / 4, 
+                y: window.innerHeight - 100, 
+                width: 80, 
+                height: 40,
+                rotate: -Math.PI / 2
+            },
+        ];
     </script>
 {% endblock %}

@@ -3,10 +3,22 @@
 {% block extraVars %}
     <script>
         var levelId = 3;
+        var fixedCamera = true;
 
-        basePythonCode = `
+        var basePythonCode = `
 import asyncio
 import math
+
+
+async def _process_tasks():
+    while True:
+        task = await task_queue.get()
+        await task
+        task_queue.task_done()
+
+
+task_queue = asyncio.Queue()
+asyncio.create_task(_process_tasks())
 
 
 class Car:
@@ -19,30 +31,55 @@ class Car:
         self.error = None
 
     def engine_start(self):
+        task_queue.put_nowait(self._engine_start())
+
+    async def _engine_start(self):
         self.engine_started = True
 
     def set_power(self, power: int):
+        task_queue.put_nowait(self._set_power(power))
+
+    async def _set_power(self, power: int):
         if abs(power) <= 1:
             self.power = power
         else:
             self.error = 'Мощность должна быть в диапазоне от -1 до 1'
             
     def rotate(self, deg):
+        task_queue.put_nowait(self._rotate(deg))
+            
+    async def _rotate(self, deg):
         if abs(deg) <= 30:
             self.wheel_angle = deg * math.pi / 180
         else:
             self.error = 'Угол поворота должен быть в диапазоне от -30 до 30 градусов'
 
 
-async def sleep(seconds):
+def sleep(seconds):
+    task_queue.put_nowait(_sleep(seconds))
+
+async def _sleep(seconds):
     await asyncio.sleep(seconds)
     return True
 
 
 car = Car()
 `;
-        baseCodeEditorText = `car.engine_start()
+        var baseCodeEditorText = `car.engine_start()
 car.set_power(.5)
 car.rotate(0)`;
+
+        var objects = [
+            {
+                id: null, 
+                type: 'car', 
+                x: window.innerWidth / 4, 
+                y: window.innerHeight / 2, 
+                width: 80, 
+                height: 40,
+                rotate: -Math.PI / 2
+            },
+            {id: null, type: 'wall', x: 100, y: 100, width: 10, height: 10}
+        ];
     </script>
 {% endblock %}
