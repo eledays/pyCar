@@ -26,11 +26,41 @@ class Car:
         self.engine_started = True
         self.wheel_angle = 0
 
-    def move(self):
-        task_queue.put_nowait(self._move())
+    def forward(self):
+        task_queue.put_nowait(self._forward())
 
-    async def _move(self):
+    async def _forward(self):
         self.power = 1
+        await asyncio.sleep(1)
+        self.power = 0
+
+    def backward(self):
+        task_queue.put_nowait(self._backward())
+
+    async def _backward(self):
+        self.power = -1
+        await asyncio.sleep(1)
+        self.power = 0
+
+    def right(self):
+        task_queue.put_nowait(self._right())
+
+    async def _right(self):
+        self.wheel_angle = 30
+        self.power = 1
+        await asyncio.sleep(1)
+        self.power = 0
+        self.wheel_angle = 0
+
+    def left(self):
+        task_queue.put_nowait(self._left())
+
+    async def _left(self):
+        self.wheel_angle = -30
+        self.power = 1
+        await asyncio.sleep(1)
+        self.power = 0
+        self.wheel_angle = 0
 
     def stop(self):
         task_queue.put_nowait(self._stop())

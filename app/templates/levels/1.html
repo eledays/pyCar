@@ -7,7 +7,6 @@
 
         basePythonCode = `
 import asyncio
-import math
 
 
 class Car:
@@ -24,8 +23,6 @@ class Car:
 
     async def _move(self):
         self.power = 1
-        await sleep(1)
-        self.power = 0
 
 
 car = Car()
