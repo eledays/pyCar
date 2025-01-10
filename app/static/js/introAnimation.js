@@ -1,6 +1,14 @@
+var levelId = 1;
+var fixedCamera = true;
+
+var canvas = document.querySelector('canvas');
+var btnField = document.querySelector('.btnField');
+var codeMirror = null;
+var guideText = document.querySelector('.guide-text');
+
 const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
-const width = window.innerWidth / 2;
+const width = window.innerWidth;
 const height = window.innerHeight;
 
 const engine = Engine.create();
@@ -21,46 +29,39 @@ const render = Render.create({
 Render.run(render);
 Runner.run(Runner.create(), engine);
 
-// Создаём границы
-// const borders = [
-//     Bodies.rectangle(width / 2, 0, width, 50, { isStatic: true }),
-//     Bodies.rectangle(width / 2, height, width, 50, { isStatic: true }),
-//     Bodies.rectangle(0, height / 2, 50, height, { isStatic: true }),
-//     Bodies.rectangle(width, height / 2, 50, height, { isStatic: true }),
-// ];
-// World.add(world, borders);
-
-var car = null;
-
-for (obj of objects) {
-    if (obj.type === 'car') {
-        car = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            friction: 0.02, // Трение
-            render: {
-                sprite: {
-                    texture: '/static/assets/car.png', 
-                    xScale: obj.width / 100,
-                    yScale: obj.height / 50,
-                },
-                fillStyle: null
+var road = Bodies.rectangle(
+    window.innerWidth / 2, window.innerHeight / 2, 40, 80, 
+    {
+        friction: 0.02, // Трение
+        render: {
+            sprite: {
+                texture: '/static/assets/road_3000.png', 
             },
-        });
-        car.width = car.bounds.max.x - car.bounds.min.x;
-        car.height = car.bounds.max.y - car.bounds.min.y;
-        Body.setAngle(car, obj.rotate);
-        World.add(world, car);
+            fillStyle: null
+        },
     }
-    else if (obj.type === 'wall') {
-        const wall = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            isStatic: true,
-            render: {
-                fillStyle: '#fff',
-            }
-        });
-        World.add(world, wall);
-    }
-}
+);
+World.add(world, road);
 
+var car = Bodies.rectangle(
+    -80, window.innerHeight / 2, 40, 80, 
+    {
+        friction: 0.02, // Трение
+        render: {
+            sprite: {
+                texture: '/static/assets/car.png', 
+                xScale: 80 / 100,
+                yScale: 40 / 50,
+            },
+            angle: Math.PI / 2,
+            fillStyle: null
+        },
+    }
+);
+car.width = car.bounds.max.x - car.bounds.min.x;
+car.height = car.bounds.max.y - car.bounds.min.y;
+World.add(world, car);
+Body.setAngle(car, Math.PI / 2);
 
 let speed = 0;
 let wheelAngle = 0;
@@ -75,6 +76,8 @@ const wheelRotateSpeed = 0.06;
 Events.on(engine, 'beforeUpdate', () => {
     if (car === null) return;
 
+    Body.setVelocity(car, {x: 5, y: 0});
+
     const velocity = Body.getVelocity(car);
     const currentSpeedX = velocity.x;
     const currentSpeedY = velocity.y;
@@ -83,8 +86,8 @@ Events.on(engine, 'beforeUpdate', () => {
     const angle = car.angle;
 
     // Вектор направления машины: косинус и синус угла
-    const directionX = Math.cos(angle);
-    const directionY = Math.sin(angle);
+    const directionX = Math.sin(angle);
+    const directionY = -Math.cos(angle);
 
     // Скалярное произведение скорости и направления
     speed = (currentSpeedX * directionX + currentSpeedY * directionY);
@@ -101,6 +104,7 @@ Events.on(engine, 'beforeUpdate', () => {
             if (speed > 0) speed = Math.max(speed - deceleration, 0);
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
         }
+        Body.setAngle(car, -Math.PI / 2);
 
         if (wheelAngle < window.carControl.wheel_angle) {
             wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
@@ -122,8 +126,8 @@ Events.on(engine, 'beforeUpdate', () => {
         Body.setAngularVelocity(car, 0); 
     }
 
-    const velocityX = Math.cos(angle) * speed;
-    const velocityY = Math.sin(angle) * speed;
+    const velocityX = Math.sin(angle) * speed;
+    const velocityY = Math.cos(angle) * speed;
     Body.setVelocity(car, { x: velocityX, y: velocityY });
 
     if (!fixedCamera) {
@@ -133,12 +137,4 @@ Events.on(engine, 'beforeUpdate', () => {
             max: { x: x + width / 2, y: y + height / 2 },
         });
     }
-});
-
-function levelEnd() {
-    document.getElementById('nextLevelButton').hidden = false;
-}
-
-document.getElementById('nextLevelButton').addEventListener('click', () => {
-    window.location.href = `/${levelId + 1}`;
 });

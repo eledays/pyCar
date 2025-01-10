@@ -1,6 +1,8 @@
 var runCodeButton = document.querySelector('#sendButton');
 var output_block = document.querySelector('.code #output');
 
+var pageLoaded = false;
+
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     lineNumbers: true,
     mode: 'python',
@@ -48,6 +50,7 @@ async function load() {
 
     console.log('ready');
     document.querySelector('.loading_block').remove();
+    pageLoaded = true;
 
     pyodide.runPython(basePythonCode);
 
