@@ -32,19 +32,28 @@ Runner.run(Runner.create(), engine);
 var road = Bodies.rectangle(
     window.innerWidth / 2, window.innerHeight / 2, 40, 80, 
     {
-        friction: 0.02, // Трение
         render: {
             sprite: {
                 texture: '/static/assets/road_3000.png', 
             },
             fillStyle: null
         },
+        isStatic: true,
+        collisionFilter: {
+            group: -1,
+            category: 0x0001,
+            mask: 0x0000
+        }
     }
 );
+// road.width = road.bounds.max.x - road.bounds.min.x;
+// road.height = road.bounds.max.y - road.bounds.min.y;
+console.log(road);
+
 World.add(world, road);
 
-var car = Bodies.rectangle(
-    -80, window.innerHeight / 2, 40, 80, 
+var mainCar = Bodies.rectangle(
+    -80, window.innerHeight / 2 + 80, 40, 80, 
     {
         friction: 0.02, // Трение
         render: {
@@ -58,10 +67,62 @@ var car = Bodies.rectangle(
         },
     }
 );
-car.width = car.bounds.max.x - car.bounds.min.x;
-car.height = car.bounds.max.y - car.bounds.min.y;
-World.add(world, car);
-Body.setAngle(car, Math.PI / 2);
+mainCar.width = mainCar.bounds.max.x - mainCar.bounds.min.x;
+mainCar.height = mainCar.bounds.max.y - mainCar.bounds.min.y;
+World.add(world, mainCar);
+Body.setAngle(mainCar, Math.PI / 2);
+
+var params = {
+    friction: 0.02, // Трение
+    render: {
+        sprite: {
+            texture: '/static/assets/car.png', 
+            xScale: 80 / 100,
+            yScale: 40 / 50,
+        },
+        angle: Math.PI / 2,
+        fillStyle: null
+    },
+};
+var rightCars = [
+    Bodies.rectangle(
+        680, window.innerHeight / 2 - 80, 40, 80, params
+    ),
+    Bodies.rectangle(
+        1280, window.innerHeight / 2 - 80, 40, 80, params
+    ),
+];
+
+params = {
+    friction: 0.02, // Трение
+    render: {
+        sprite: {
+            texture: '/static/assets/car.png', 
+            xScale: 80 / 100,
+            yScale: 40 / 50,
+        },
+        angle: -Math.PI / 2,
+        fillStyle: null
+    },
+};
+var leftCars = [
+    Bodies.rectangle(
+        window.innerWidth, window.innerHeight / 2 + 80, 40, 80, params
+    ),
+    Bodies.rectangle(
+        window.innerWidth + 600, window.innerHeight / 2 + 80, 40, 80, params
+    ),
+]
+
+rightCars.forEach((e) => {
+    World.add(world, e);
+    Body.setAngle(e, Math.PI / 2);
+});
+
+leftCars.forEach((e) => {
+    World.add(world, e);
+    Body.setAngle(e, -Math.PI / 2);
+});
 
 let speed = 0;
 let wheelAngle = 0;
@@ -74,16 +135,22 @@ const deceleration = 0.05;
 const wheelRotateSpeed = 0.06;
 
 Events.on(engine, 'beforeUpdate', () => {
-    if (car === null) return;
+    if (mainCar === null) return;
 
-    Body.setVelocity(car, {x: 5, y: 0});
+    Body.setVelocity(mainCar, {x: 5, y: 0});
+    rightCars.forEach((e) => {
+        Body.setVelocity(e, {x: 5, y: 0});
+    });
+    leftCars.forEach((e) => {
+        Body.setVelocity(e, {x: 5, y: 0});
+    });
 
-    const velocity = Body.getVelocity(car);
+    const velocity = Body.getVelocity(mainCar);
     const currentSpeedX = velocity.x;
     const currentSpeedY = velocity.y;
 
     // Направление машины (угол)
-    const angle = car.angle;
+    const angle = mainCar.angle;
 
     // Вектор направления машины: косинус и синус угла
     const directionX = Math.sin(angle);
@@ -104,7 +171,7 @@ Events.on(engine, 'beforeUpdate', () => {
             if (speed > 0) speed = Math.max(speed - deceleration, 0);
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
         }
-        Body.setAngle(car, -Math.PI / 2);
+        Body.setAngle(mainCar, -Math.PI / 2);
 
         if (wheelAngle < window.carControl.wheel_angle) {
             wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
@@ -115,23 +182,23 @@ Events.on(engine, 'beforeUpdate', () => {
         }
     }
 
-    const turnRadius = car.width / Math.tan(wheelAngle);
+    const turnRadius = mainCar.width / Math.tan(wheelAngle);
 
     if (Math.abs(wheelAngle) > 0.01) {
         const angularVelocity = speed / turnRadius; // Угловая скорость
-        console.log(car);
-        Body.setAngularVelocity(car, angularVelocity);
+        console.log(mainCar);
+        Body.setAngularVelocity(mainCar, angularVelocity);
     } else {
         // Прямолинейное движение
-        Body.setAngularVelocity(car, 0); 
+        Body.setAngularVelocity(mainCar, 0); 
     }
 
     const velocityX = Math.sin(angle) * speed;
     const velocityY = Math.cos(angle) * speed;
-    Body.setVelocity(car, { x: velocityX, y: velocityY });
+    Body.setVelocity(mainCar, { x: velocityX, y: velocityY });
 
     if (!fixedCamera) {
-        const { x, y } = car.position;
+        const { x, y } = mainCar.position;
         Render.lookAt(render, {
             min: { x: x - width / 2, y: y - height / 2 },
             max: { x: x + width / 2, y: y + height / 2 },
