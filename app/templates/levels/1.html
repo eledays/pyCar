@@ -1,3 +1,4 @@
+<!-- Знакомство -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,24 +7,170 @@
     <title>pyCar</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/level.css') }}">
+
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror-theme.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
 </head>
 <body>
+    <div class="code">
+        <textarea id="codeEditor"></textarea>
+        <p id="output"></p>
+        <div class="btnField">
+            <button id="sendButton" hidden>Запустить</button>
+            <button id="nextLevelButton" hidden>Далее</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
+
+    <div class="cap">
+        <h1>pyCar</h1>
+    </div>
     <script src="{{ url_for('static', filename='libs/matter-js/build/matter.js') }}"></script>
     <script src="{{ url_for('static', filename='js/introAnimation.js') }}"></script>
+    
+    <div class="messages">
+    </div>
+    <textarea name="code" id="code" rows="1"></textarea>
 
-    <p class="guide-text">Привет</p>
+    <div class="finishMsg" hidden>
+        <p>Поздравляем! Первый уровень пройден. Приятной игры!</p>
+    </div>
 
     <style>
-        p.guide-text {
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+        .messages {
             position: absolute;
-            top: 50vh; left: 50vw;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 24px;
-            font-weight: 600;
-            transition: 1s;
-            transition-delay: 1s;
+            bottom: 40px; left: 50vw;
+            transform: translateX(-50%);
+            width: 25vw;
+            min-width: 500px;
+            height: calc(100vh - 500px);
+            overflow-y: scroll;
+        }
+
+        .messages::-webkit-scrollbar {
             opacity: 0;
+        }
+
+        .messages p {
+            color: #ffffff;
+            background-color: #2e2e2e;
+            padding: 10px 15px;
+            border-radius: 10px;
+            width: max-content;
+            max-width: 100%;
+            font-weight: 500;
+            margin-bottom: 4px;
+            width: max-content;
+
+            animation-name: msgAppear;
+            animation-duration: 1s;
+            animation-fill-mode: forwards; 
+        }
+
+        @keyframes msgAppear {
+            0% {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #code {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            resize: none;
+            outline: none;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            opacity: 0;
+        }
+
+        .cap {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0; left: 0;
+            background-color: #000;
+            z-index: 10000;
+            opacity: 1;
+        }
+
+        .cap h1 {
+            font-family: 'Manrope', sans-serif;
+            color: #fff;
+            font-weight: 600;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        span.codeText {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #494949;
+            padding: 1px 4px;
+            width: max-content;
+            height: max-content;
+            border-radius: 4px;
+        }
+
+        p.codeEditor {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #111111;
+            width: 100%;
+        }
+
+        .CodeMirror {
+            overflow-y: hidden;
+            width: 100%;
+            height: 100%;
+            font-size: 1.2em;
+            resize: vertical;
+            min-width: 20%;
+            max-height: 100%;
+            transform: translateX(100%);
+        }
+
+        .CodeMirror * {
+            font-family: monospace;
+        }
+
+        .finishMsg {
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            background-color: #000;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        .finishMsg p {
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </body>

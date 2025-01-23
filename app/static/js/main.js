@@ -67,7 +67,7 @@ let wheelAngle = 0;
 
 // Константы
 const maxWheelAngle = Math.PI / 6; // (30 градусов)
-const maxSpeed = 10;
+// const maxSpeed = 10;
 const acceleration = 0.05;
 const deceleration = 0.05;
 const wheelRotateSpeed = 0.06;
