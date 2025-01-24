@@ -58,6 +58,16 @@ async function load() {
         window.carControl = pyodide.globals.get('car').toJs();
     }, 50);
 
+    console.log(messages)
+    for (let message of messages) {
+        if (message[0].startsWith('btn:')) {
+            setTimeout(() => addMessage(message[0].replace('btn:', ''), 'button', () => alert('hi')), message[1]);
+        }
+        else {
+            setTimeout(() => addMessage(message[0]), message[1]);
+        }
+    }
+
     return pyodide;
 };
 

@@ -109,3 +109,58 @@ button {
     transform: translate(-50%, -50%);
     font-weight: normal;
 }
+
+.messages {
+    position: absolute;
+    top: 50px; left: 50px;
+    width: 25vw;
+    min-width: 500px;
+    height: calc(100vh - 500px);
+    overflow-y: scroll;
+}
+
+.messages::-webkit-scrollbar {
+    opacity: 0;
+}
+
+.messages p {
+    color: #ffffff;
+    background-color: #2e2e2e;
+    padding: 10px 15px;
+    border-radius: 10px;
+    width: max-content;
+    max-width: 100%;
+    font-weight: 500;
+    margin-bottom: 4px;
+    width: max-content;
+
+    animation-name: msgAppear;
+    animation-duration: 1s;
+    animation-fill-mode: forwards; 
+}
+
+@keyframes msgAppear {
+    0% {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+span.codeText {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #494949;
+    padding: 1px 4px;
+    width: max-content;
+    height: max-content;
+    border-radius: 4px;
+}
+
+.chatButton {
+    animation-name: msgAppear;
+    animation-duration: 1s;
+    animation-fill-mode: forwards; 
+}

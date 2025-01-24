@@ -142,3 +142,48 @@ function levelEnd() {
 document.getElementById('nextLevelButton').addEventListener('click', () => {
     window.location.href = `/${levelId + 1}`;
 });
+
+function smoothScrollTo(element, target, duration) {
+    let start = element.scrollTop;
+    let change = target - start;
+    let startTime = performance.now();
+
+    function animateScroll(currentTime) {
+        let elapsedTime = currentTime - startTime;
+        let progress = Math.min(elapsedTime / duration, 1);
+
+        let easeInOutProgress = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        element.scrollTop = start + change * easeInOutProgress;
+
+        if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+        }
+    }
+
+    requestAnimationFrame(animateScroll);
+}
+
+function addMessage(message, type='text', onclick=null) {
+    let messagesBlock = document.querySelector('.messages');
+
+    let newMsg = null;
+    if (type === 'text') {
+        newMsg = document.createElement('p')
+        newMsg.innerHTML = message;
+        messagesBlock.appendChild(newMsg);
+    
+        smoothScrollTo(messagesBlock, messagesBlock.scrollHeight - messagesBlock.clientHeight - 30, 1000);
+    }
+    else if (type === 'button') {
+        newMsg = document.createElement('button');
+        newMsg.innerText = message;
+        newMsg.className = 'chatButton';
+        newMsg.addEventListener('click', onclick);
+        messagesBlock.appendChild(newMsg);
+    
+        smoothScrollTo(messagesBlock, messagesBlock.scrollHeight - messagesBlock.clientHeight, 1000);
+    }
+}
