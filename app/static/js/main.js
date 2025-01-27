@@ -67,7 +67,7 @@ let wheelAngle = 0;
 
 // Константы
 const maxWheelAngle = Math.PI / 6; // (30 градусов)
-// const maxSpeed = 10;
+const maxSpeed = 10;
 const acceleration = 0.05;
 const deceleration = 0.05;
 const wheelRotateSpeed = 0.06;
@@ -83,12 +83,11 @@ Events.on(engine, 'beforeUpdate', () => {
     const angle = car.angle;
 
     // Вектор направления машины: косинус и синус угла
-    const directionX = Math.cos(angle);
-    const directionY = Math.sin(angle);
+    const directionX = Math.sin(angle);
+    const directionY = -Math.cos(angle);
 
     // Скалярное произведение скорости и направления
     speed = (currentSpeedX * directionX + currentSpeedY * directionY);
-    
 
     if (window.carControl) {
         if (window.carControl.power && window.carControl.power > 0) {
@@ -122,8 +121,8 @@ Events.on(engine, 'beforeUpdate', () => {
         Body.setAngularVelocity(car, 0); 
     }
 
-    const velocityX = Math.cos(angle) * speed;
-    const velocityY = Math.sin(angle) * speed;
+    const velocityX = Math.sin(angle) * speed;
+    const velocityY = -Math.cos(angle) * speed;
     Body.setVelocity(car, { x: velocityX, y: velocityY });
 
     if (!fixedCamera) {
@@ -166,8 +165,12 @@ function smoothScrollTo(element, target, duration) {
     requestAnimationFrame(animateScroll);
 }
 
-function addMessage(message, type='text', onclick=null) {
+function addMessage(message, type='text', onclick=null, autodelete=null) {
     let messagesBlock = document.querySelector('.messages');
+
+    if (type === 'button' && autodelete === null) {
+        autodelete = true;
+    }
 
     let newMsg = null;
     if (type === 'text') {
@@ -181,7 +184,11 @@ function addMessage(message, type='text', onclick=null) {
         newMsg = document.createElement('button');
         newMsg.innerText = message;
         newMsg.className = 'chatButton';
-        newMsg.addEventListener('click', onclick);
+        if (!autodelete) newMsg.addEventListener('click', onclick);
+        else newMsg.addEventListener('click', () => {
+            onclick();
+            newMsg.remove();
+        });
         messagesBlock.appendChild(newMsg);
     
         smoothScrollTo(messagesBlock, messagesBlock.scrollHeight - messagesBlock.clientHeight, 1000);

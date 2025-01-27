@@ -45,11 +45,7 @@ def sleep(seconds):
 
 car = Car()
 `;
-        baseCodeEditorText = `# Теперь ты можешь управлять машиной более точно
-        
-# Выполни функцию forward, backward, right или left у car, чтобы посмотреть, что они делают
-
-`;
+        baseCodeEditorText = '';
 
         var objects = [
             {
@@ -59,17 +55,38 @@ car = Car()
                 y: window.innerHeight - 100, 
                 width: 80, 
                 height: 40,
-                rotate: -Math.PI / 2
+                rotate: 0
             },
         ];
 
         messages = [
             ['Часто может возникнуть ситуация, в которой нужно сделать паузу', 0],
-            ['Например, сейчас твоя задача — поехать и остановиться через 5 секунд', 3000],
-            ['Чтобы сделать паузу, используется функция sleep', 5000],
-            ['Напомним, что чтобы вызвать функцию, нужно написать её название и скобки. В скобках можно указать аргументы. Например, функция sleep принимает количество секунд, на которое нужно остановиться', 8000],
-            ['<span class="codeText">sleep(5)</span> — строчка, которая остановит выполнение кода на 5 секунд', 11000],
-            ['btn:Далее', 13000]
+            ['Например, сейчас твоя задача — поехать и остановиться через 3 секунд', 3000],
+            ['Чтобы сделать паузу, используется функция <span class="codeText">sleep</span>', 5000],
+            ['Напомним, что чтобы вызвать функцию, нужно написать её название и скобки. В скобках можно указать аргументы. Например, функция <span class="codeText">sleep</span> принимает количество секунд, на которое нужно остановиться', 8000],
+            ['<span class="codeText">sleep(3)</span> — строчка, которая остановит выполнение кода на 3 секунд', 11000],
+            ['Далее', 13000, () => addMessage('Сейчас твоя задача — заставить автомобиль поехать и остановиться через 3 секунд. Если написать несколько строк кода, они будут выполняться друг за другом. Если встретится <span class="codeText">sleep</span> — программа остановится, а через заданное время пойдет дальше по строчкам')]
         ];
+
+        const iId = setInterval(() => {
+            let velocity = Body.getVelocity(car);
+            let currentSpeedX = velocity.x;
+            let currentSpeedY = velocity.y;
+
+            if (currentSpeedX || currentSpeedY) {
+                clearInterval(iId);
+                
+                setTimeout(() => {
+                    setInterval(() => {
+                        let velocity = Body.getVelocity(car);
+                        let currentSpeedX = velocity.x;
+                        let currentSpeedY = velocity.y;
+                        if (!currentSpeedX && !currentSpeedY) {
+                            levelEnd();
+                        }
+                    }, 100);
+                }, 3000);
+            }
+        }, 100);
     </script>
 {% endblock %}

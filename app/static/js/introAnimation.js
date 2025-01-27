@@ -37,8 +37,12 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     }
 });
 
-function addMessage(message, type='text') {
+function addMessage(message, type='text', autodelete=null) {
     let messagesBlock = document.querySelector('.messages');
+
+    if (type === 'button' && autodelete === null) {
+        autodelete = true;
+    }
 
     let newMsg = null;
     if (type === 'text') {

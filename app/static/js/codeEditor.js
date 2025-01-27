@@ -46,7 +46,7 @@ async function load() {
     }
 
     let pyodide = await loadPyodide();
-    pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str})
+    pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
 
     console.log('ready');
     document.querySelector('.loading_block').remove();
@@ -60,11 +60,11 @@ async function load() {
 
     console.log(messages)
     for (let message of messages) {
-        if (message[0].startsWith('btn:')) {
-            setTimeout(() => addMessage(message[0].replace('btn:', ''), 'button', () => alert('hi')), message[1]);
+        if (message.length === 2) {
+            setTimeout(() => addMessage(message[0]), message[1]);
         }
         else {
-            setTimeout(() => addMessage(message[0]), message[1]);
+            setTimeout(() => addMessage(message[0], 'button', message[2]), message[1]);
         }
     }
 
