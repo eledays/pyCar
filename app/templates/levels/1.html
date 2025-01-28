@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pyCar</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/level.css') }}">
-
     <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror-theme.css') }}">
@@ -45,12 +43,14 @@
         <p>Поздравляем! Первый уровень пройден. Приятной игры!</p>
     </div>
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/level.css') }}">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 
         .messages {
             position: absolute;
-            bottom: 40px; left: 50vw;
+            bottom: 40px; left: 50vw; top: auto;
             transform: translateX(-50%);
             width: 25vw;
             min-width: 500px;

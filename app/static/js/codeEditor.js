@@ -63,7 +63,10 @@ async function load() {
         if (message.length === 2) {
             setTimeout(() => addMessage(message[0]), message[1]);
         }
-        else {
+        else if (message.length === 3 && message[2] === 'newBlock') {            
+            setTimeout(() => addMessage(message[0], 'text', null, false, true), message[1]);
+        }
+        else if (message.length === 3) {
             setTimeout(() => addMessage(message[0], 'button', message[2]), message[1]);
         }
     }

@@ -165,8 +165,9 @@ function smoothScrollTo(element, target, duration) {
     requestAnimationFrame(animateScroll);
 }
 
-function addMessage(message, type='text', onclick=null, autodelete=null) {
+function addMessage(message, type='text', onclick=null, autodelete=null, newBlock=false) {
     let messagesBlock = document.querySelector('.messages');
+    
 
     if (type === 'button' && autodelete === null) {
         autodelete = true;
@@ -176,6 +177,9 @@ function addMessage(message, type='text', onclick=null, autodelete=null) {
     if (type === 'text') {
         newMsg = document.createElement('p')
         newMsg.innerHTML = message;
+
+        if (newBlock) newMsg.style.marginTop = '10px';
+
         messagesBlock.appendChild(newMsg);
     
         smoothScrollTo(messagesBlock, messagesBlock.scrollHeight - messagesBlock.clientHeight - 30, 1000);

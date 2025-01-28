@@ -286,7 +286,7 @@ setTimeout(() => {
         mainCar.height = mainCar.bounds.max.y - mainCar.bounds.min.y;
         World.add(world, mainCar);
         Body.setAngle(mainCar, Math.PI / 2);
-    }, 5000);
+    }, 2000);
 }, 500);
 
 
