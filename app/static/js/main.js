@@ -1,4 +1,4 @@
-const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events, Constraint } = Matter;
 
 const width = window.innerWidth / 2;
 const height = window.innerHeight;
@@ -31,14 +31,29 @@ Runner.run(Runner.create(), engine);
 // World.add(world, borders);
 
 var car = null;
+var glow = null;
 
 for (obj of objects) {
     if (obj.type === 'car') {
+        glow = Bodies.rectangle(obj.x, obj.y - 70, obj.width, obj.height, {
+            isSensor: true,
+            render: {
+                sprite: {
+                    texture: '/static/assets/glow.png', 
+                    xScale: obj.width / 100,
+                    yScale: obj.height / 50,
+                },
+                fillStyle: null,
+                opacity: 0
+            },
+        });
+        World.add(world, glow);
+
         car = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
             friction: 0.02, // Трение
             render: {
                 sprite: {
-                    texture: '/static/assets/car.png', 
+                    texture: '/static/assets/white_car.png', 
                     xScale: obj.width / 100,
                     yScale: obj.height / 50,
                 },
@@ -49,6 +64,16 @@ for (obj of objects) {
         car.height = car.bounds.max.y - car.bounds.min.y;
         Body.setAngle(car, obj.rotate);
         World.add(world, car);
+
+        var constraint = Constraint.create({
+            bodyA: car,
+            bodyB: glow,
+            stiffness: 0,
+            length: 0,
+            pointA: { x: 0, y: 0 },
+            pointB: { x: 0, y: 70 }
+        });
+        World.add(world, constraint);
     }
     else if (obj.type === 'wall') {
         const wall = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
@@ -70,6 +95,7 @@ const maxWheelAngle = Math.PI / 6; // (30 градусов)
 const maxSpeed = 10;
 const acceleration = 0.05;
 const deceleration = 0.05;
+const breakDeceleration = 0.08;
 const wheelRotateSpeed = 0.06;
 
 Events.on(engine, 'beforeUpdate', () => {
@@ -90,6 +116,22 @@ Events.on(engine, 'beforeUpdate', () => {
     speed = (currentSpeedX * directionX + currentSpeedY * directionY);
 
     if (window.carControl) {
+        let opacity = window.carControl.engine_started;
+        let step = .01;
+        let iId = setInterval(() => {
+            if (opacity > glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
+                glow.render.opacity += step;
+            }
+            else if (opacity < glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
+                glow.render.opacity -= step;
+            }
+            else if ((opacity - glow.render.opacity) < step) {
+                clearInterval(iId);
+            }
+            console.log(glow.render.opacity);
+            
+        }, 50);
+
         if (window.carControl.power && window.carControl.power > 0) {
             speed = Math.min(speed + acceleration * window.carControl.power * window.carControl.engine_started, maxSpeed);
         }
@@ -99,6 +141,13 @@ Events.on(engine, 'beforeUpdate', () => {
         else {
             if (speed > 0) speed = Math.max(speed - deceleration, 0);
             if (speed < 0) speed = Math.min(speed + deceleration, 0);
+        }
+
+        // brakes
+        if (window.carControl.brakes) {
+            if (Math.abs(speed) < breakDeceleration) speed = 0;
+            else if (speed > 0) speed -= breakDeceleration;
+            else if (speed < 0) speed += breakDeceleration;
         }
 
         if (wheelAngle < window.carControl.wheel_angle) {
@@ -167,7 +216,6 @@ function smoothScrollTo(element, target, duration) {
 
 function addMessage(message, type='text', onclick=null, autodelete=null, newBlock=false) {
     let messagesBlock = document.querySelector('.messages');
-    
 
     if (type === 'button' && autodelete === null) {
         autodelete = true;
