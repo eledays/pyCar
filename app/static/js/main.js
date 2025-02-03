@@ -84,6 +84,21 @@ for (obj of objects) {
         });
         World.add(world, wall);
     }
+    else if (obj.type === 'road') {
+        const road = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+            isStatic: true,
+            isSensor: true,
+            render: {
+                sprite: {
+                    texture: obj.path,
+                    // xScale: obj.width / 100,
+                    // yScale: obj.height / 50,
+                },
+                fillStyle: null
+            }
+        });
+        World.add(world, road);
+    }
 }
 
 

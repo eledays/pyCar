@@ -1,0 +1,122 @@
+<!-- Светофор -->
+{% extends "level.html" %}
+{% block extraVars %}
+    <script>
+        var levelId = 3;
+        var fixedCamera = true;
+
+        var basePythonCode = `
+import asyncio
+
+async def _process_tasks():
+    while True:
+        task = await task_queue.get()
+        await task
+        task_queue.task_done()
+
+
+task_queue = asyncio.Queue()
+asyncio.create_task(_process_tasks())
+
+class Car:
+    def __init__(self):
+        self.power = 0
+        self.engine_started = False
+        self.wheel_angle = 0
+        self.gear = 0
+        self.brakes = False
+
+    def engine_start(self):
+        task_queue.put_nowait(self._engine_start())
+
+    async def _engine_start(self):
+        self.engine_started = True
+
+    def engine_stop(self):
+        task_queue.put_nowait(self._engine_stop())
+
+    async def _engine_stop(self):
+        self.engine_started = False
+
+    def brakes_on(self):
+        task_queue.put_nowait(self._brakes_on())
+
+    async def _brakes_on(self):
+        self.brakes = True
+
+    def brakes_off(self):
+        task_queue.put_nowait(self._brakes_off())
+
+    async def _brakes_off(self):
+        self.brakes = False
+
+    def set_power(self, *args, **kwargs):
+        task_queue.put_nowait(self._set_power(*args, **kwargs))
+
+    async def _set_power(self, value):
+        self.brakes = False
+        self.power = (value / 100) * self.gear * self.engine_started
+
+    def gear_F(self):
+        task_queue.put_nowait(self._gear_F())
+
+    async def _gear_F(self):
+        self.gear = 1
+
+    def gear_R(self):
+        task_queue.put_nowait(self._gear_R())
+
+    async def _gear_R(self):
+        self.gear = -1
+
+    def gear_P(self):
+        task_queue.put_nowait(self._gear_P())
+
+    async def _gear_P(self):
+        self.gear = 0
+
+def sleep(seconds):
+    task_queue.put_nowait(asyncio.sleep(seconds))
+
+car = Car()
+`;
+        var baseCodeEditorText = '';
+
+        var objects = [
+            {
+                id: 1,
+                type: 'road',
+                x: window.innerWidth / 4,
+                y: window.innerHeight / 2 - ((2214 - window.innerHeight) / 2),
+                width: 222,
+                height: 2214,
+                rotate: 0,
+                path: '/static/assets/4/road.png'
+            },
+            {
+                id: null, 
+                type: 'car', 
+                x: window.innerWidth / 4, 
+                y: window.innerHeight - 100, 
+                width: 80, 
+                height: 40,
+                rotate: 0
+            },
+        ];
+
+        messages = [
+            ['Давай научимся управлять машинкой более точно', 0],
+            ['У машины есть двигатель. По-умолчанию он не запущен, и машина не может ехать', 3000],
+            ['Также у машины есть передачи: F (Forward), R (Rear), P (Parknig), которые влияют на то, в какую сторону поедет машина. По-умолчанию включен P и машина не поедет. F — поедет вперед (когда установишь мощность), R — назад', 6000],
+            ['<span class="codeText">car.engine_start()</span> — запустить двигатель<br><span class="codeText">car.gear_F()</span> — выбрать передачу F<br><span class="codeText">car.gear_R()</span> — выбрать передачу R <br><span class="codeText">car.gear_P()</span> — выбрать передачу P<br><span class="codeText">car.set_power(value)</span> — задать мощность двигателя (в скобках нужно передать значение — число от 0 до 100). Чем  больше мощность, тем быстрее поедет машинка<br><span class="codeText">car.set_angle(value)</span> — задать угол поворота колёс (в скобках нужно передать значение — число от -30 до 30 (угол в градусах)). Чем больше значение больше нуля, тем сильнее машина будет поворачивать вправо, если меньше нуля — тем сильнее влево<br><span class="codeText">car.brakes_on()</span> — включить тормоза<span class="codeText">car.brakes_off()</span> — выключить тормоза', 9000],
+            ['Попробуй использовать разные функции и покататься по экрану', 18000],
+            ['Скрыть сообщения', 18000, () => {
+                let messagesBlock = document.querySelector('.messages');
+                messagesBlock.replaceChildren();
+                editor.setValue('# Если написать что-то с решёткой в начале строки — получится комментарий, который не будет выполняться как код. Туда можно писать какой-нибудь текст, например ниже есть шпаргалка\n\n# Шпаргалка\n# car.engine_start() — запустить двигатель\n# car.gear_F() — выбрать передачу F\n# car.gear_R() — выбрать передачу R \n# car.gear_P() — выбрать передачу P\n# car.set_power(value) — задать мощность двигателя (в скобках нужно передать значение — число от 0 до 100)\n# car.set_angle(value) — задать угол поворота колёс (в скобках нужно передать значение — число от -30 до 30 (угол в градусах))\n# car.brakes_on() — включить тормоза\n# car.brakes_off() — выключить тормоза\n\n' + baseCodeEditorText + editor.getValue());
+            }]
+        ];
+        
+        setTimeout(() => {levelEnd()}, 10000);
+    </script>
+{% endblock %}
