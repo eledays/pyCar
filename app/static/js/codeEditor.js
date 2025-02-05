@@ -23,6 +23,7 @@ editor.on('inputRead', function(cm, change) {
     if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
         CodeMirror.commands.autocomplete(cm);
     }
+    window.localStorage.setItem('code', editor.getValue());
 });
 
 runCodeButton.addEventListener('click', async () => {
@@ -40,10 +41,8 @@ runCodeButton.addEventListener('click', async () => {
 editor.setValue(baseCodeEditorText);
 
 async function load() {
-    if (window.localStorage.getItem('no_wasm') === true) {
-        document.querySelector('.loading_block').remove();
-        return;
-    }
+    // document.querySelector('.loading_block').remove();
+    // return;
 
     let pyodide = await loadPyodide();
     pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
@@ -55,7 +54,8 @@ async function load() {
     pyodide.runPython(basePythonCode);
 
     setInterval(async () => {
-        window.carControl = pyodide.globals.get('car').toJs();
+        if (pyodide.globals.get('car')) window.carControl = pyodide.globals.get('car').toJs();
+        if (pyodide.globals.get('light')) window.lightControl = pyodide.globals.get('light').toJs();
     }, 50);
 
     console.log(messages)
@@ -70,6 +70,8 @@ async function load() {
             setTimeout(() => addMessage(message[0], 'button', message[2]), message[1]);
         }
     }
+
+    editor.setValue(window.localStorage.getItem('code'));
 
     return pyodide;
 };

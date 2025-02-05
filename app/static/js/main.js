@@ -1,4 +1,4 @@
-const { Engine, Render, Runner, World, Bodies, Body, Events, Constraint } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events, Constraint, Composite } = Matter;
 
 const width = window.innerWidth / 2;
 const height = window.innerHeight;
@@ -32,6 +32,7 @@ Runner.run(Runner.create(), engine);
 
 var car = null;
 var glow = null;
+let mainLight = null;
 
 for (obj of objects) {
     if (obj.type === 'car') {
@@ -94,10 +95,32 @@ for (obj of objects) {
                     // xScale: obj.width / 100,
                     // yScale: obj.height / 50,
                 },
-                fillStyle: null
+                fillStyle: null,
+                opacity: obj.opacity
             }
         });
+        road.id = obj.id;
         World.add(world, road);
+    }
+    else if (obj.type === 'light') {
+        console.log(`/static/assets/${obj.color}_light.png`);
+        
+        let light = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+            isStatic: true,
+            isSensor: true,
+            render: {
+                sprite: {
+                    texture: `/static/assets/${obj.color}_light.png`,
+                    // xScale: obj.width / 100,
+                    // yScale: obj.height / 50,
+                },
+                fillStyle: null,
+                opacity: obj.opacity
+            }
+        });
+        light.id = obj.id;
+        Body.setAngle(light, obj.rotate);
+        World.add(world, light);
     }
 }
 
@@ -196,6 +219,10 @@ Events.on(engine, 'beforeUpdate', () => {
             max: { x: x + width / 2, y: y + height / 2 },
         });
     }
+
+    if (typeof lightControl !== 'undefined') {
+        getBodyById(lightControl.id).render.sprite.texture = `/static/assets/${lightControl.str_color}_light.png`;
+    }
 });
 
 function levelEnd() {
@@ -260,4 +287,8 @@ function addMessage(message, type='text', onclick=null, autodelete=null, newBloc
     
         smoothScrollTo(messagesBlock, messagesBlock.scrollHeight - messagesBlock.clientHeight, 1000);
     }
+}
+
+function getBodyById(id) {
+    return Composite.allBodies(world).find(body => body.id === id);
 }

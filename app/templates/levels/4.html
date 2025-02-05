@@ -21,9 +21,9 @@ asyncio.create_task(_process_tasks())
 class Car:
     def __init__(self):
         self.power = 0
-        self.engine_started = False
+        self.engine_started = True
         self.wheel_angle = 0
-        self.gear = 0
+        self.gear = 1
         self.brakes = False
 
     def engine_start(self):
@@ -75,10 +75,55 @@ class Car:
     async def _gear_P(self):
         self.gear = 0
 
+class Condition:
+    def __init__(self, check_func):
+        self.check_func = check_func
+    
+    def __bool__(self):
+        return self.check_func()
+
+class Color:
+    def __init__(self, value):
+        self.value = value
+    
+    def __eq__(self, other):
+        return Condition(lambda: self.value == other.value)
+    
+    def __ne__(self, other):
+        return Condition(lambda: self.value != other.value)
+
+class Light:
+    RED = Color(0)
+    YELLOW = Color(1)
+    GREEN = Color(2)
+    def __init__(self, id, color):
+        self.id = id
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+
+    def set_color(self, color):
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+
+    def get_color(self):
+        return self.color
+
 def sleep(seconds):
     task_queue.put_nowait(asyncio.sleep(seconds))
 
+def wait(condition):
+    async def check_condition():
+        while not condition:
+            await asyncio.sleep(0.1)
+    print(bool(condition))
+    task_queue.put_nowait(check_condition())
+
+RED = Color(0)
+YELLOW = Color(1)
+GREEN = Color(2)
+
 car = Car()
+light = Light(2, RED)
 `;
         var baseCodeEditorText = '';
 
@@ -91,13 +136,26 @@ car = Car()
                 width: 222,
                 height: 2214,
                 rotate: 0,
-                path: '/static/assets/4/road.png'
+                path: '/static/assets/4/road.png',
+                opacity: 1
+            },
+            {
+                id: 2,
+                type: 'light',
+                x: window.innerWidth / 4 + 180, 
+                y: window.innerHeight - 400, 
+                width: 222,
+                height: 2214,
+                rotate: 0,
+                color: 'red',
+                rotate: Math.PI,
+                opacity: 1
             },
             {
                 id: null, 
                 type: 'car', 
                 x: window.innerWidth / 4, 
-                y: window.innerHeight - 100, 
+                y: window.innerHeight - 250, 
                 width: 80, 
                 height: 40,
                 rotate: 0
@@ -105,18 +163,31 @@ car = Car()
         ];
 
         messages = [
-            ['Давай научимся управлять машинкой более точно', 0],
-            ['У машины есть двигатель. По-умолчанию он не запущен, и машина не может ехать', 3000],
-            ['Также у машины есть передачи: F (Forward), R (Rear), P (Parknig), которые влияют на то, в какую сторону поедет машина. По-умолчанию включен P и машина не поедет. F — поедет вперед (когда установишь мощность), R — назад', 6000],
-            ['<span class="codeText">car.engine_start()</span> — запустить двигатель<br><span class="codeText">car.gear_F()</span> — выбрать передачу F<br><span class="codeText">car.gear_R()</span> — выбрать передачу R <br><span class="codeText">car.gear_P()</span> — выбрать передачу P<br><span class="codeText">car.set_power(value)</span> — задать мощность двигателя (в скобках нужно передать значение — число от 0 до 100). Чем  больше мощность, тем быстрее поедет машинка<br><span class="codeText">car.set_angle(value)</span> — задать угол поворота колёс (в скобках нужно передать значение — число от -30 до 30 (угол в градусах)). Чем больше значение больше нуля, тем сильнее машина будет поворачивать вправо, если меньше нуля — тем сильнее влево<br><span class="codeText">car.brakes_on()</span> — включить тормоза<span class="codeText">car.brakes_off()</span> — выключить тормоза', 9000],
-            ['Попробуй использовать разные функции и покататься по экрану', 18000],
-            ['Скрыть сообщения', 18000, () => {
-                let messagesBlock = document.querySelector('.messages');
-                messagesBlock.replaceChildren();
-                editor.setValue('# Если написать что-то с решёткой в начале строки — получится комментарий, который не будет выполняться как код. Туда можно писать какой-нибудь текст, например ниже есть шпаргалка\n\n# Шпаргалка\n# car.engine_start() — запустить двигатель\n# car.gear_F() — выбрать передачу F\n# car.gear_R() — выбрать передачу R \n# car.gear_P() — выбрать передачу P\n# car.set_power(value) — задать мощность двигателя (в скобках нужно передать значение — число от 0 до 100)\n# car.set_angle(value) — задать угол поворота колёс (в скобках нужно передать значение — число от -30 до 30 (угол в градусах))\n# car.brakes_on() — включить тормоза\n# car.brakes_off() — выключить тормоза\n\n' + baseCodeEditorText + editor.getValue());
+            ['Скрыть сообщения', 100, () => {
+                getBodyById(1).opacity = 1;
+                getBodyById(2).opacity = 1;
             }]
         ];
+
+        let iId = null;
+        setTimeout(() => {
+            document.querySelector('#sendButton').addEventListener('click', () => {
+                if (!iId) {
+                    iId = setInterval(async () => {
+                        let light = getBodyById(2);
+                        if (light.color === 0) {
+                            light.color = 2;
+                            await evaluatePython('light.set_color(Light.GREEN)');
+                        }
+                        else {
+                            light.color = 0;
+                            await evaluatePython('light.set_color(Light.RED)');
+                        }
+                    }, 5000);
+                }
+            });
+        }, 500);
         
-        setTimeout(() => {levelEnd()}, 10000);
+        // setTimeout(() => {levelEnd()}, 10000);
     </script>
 {% endblock %}
