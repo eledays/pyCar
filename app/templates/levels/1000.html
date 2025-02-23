@@ -1,13 +1,12 @@
-<!-- Продолжение -->
+<!-- Светофор -->
 {% extends "level.html" %}
 {% block extraVars %}
     <script>
-        var levelId = 2;
+        var levelId = 3;
         var fixedCamera = true;
 
-        basePythonCode = `
+        var basePythonCode = `
 import asyncio
-
 
 async def _process_tasks():
     while True:
@@ -15,82 +14,240 @@ async def _process_tasks():
         await task
         task_queue.task_done()
 
-
 task_queue = asyncio.Queue()
 asyncio.create_task(_process_tasks())
 
+class Engine:
+    def __init__(self):
+        self.started = False
+        self.power = 0
+    
+    def start(self):
+        print('start')
+        task_queue.put_nowait(self._start())
+
+    async def _start(self):
+        self.started = True
+
+    def stop(self):
+        print('stop')
+        task_queue.put_nowait(self._stop())
+
+    def _stop(self):
+        self.started = False
+
+    def set_power(self, value):
+        task_queue.put_nowait(self._set_power(value))
+
+    async def _set_power(self, value):
+        self.power = value / 100
+
+class Headlights:
+    def __init__(self):
+        self.state = 0
+    
+    def on(self):
+        task_queue.put_nowait(self._on())
+    
+    async def _on(self):
+        self.state = 1
+
+    def off(self):
+        task_queue.put_nowait(self._off())
+    
+    async def _off(self):
+        self.state = 0        
+
+class Steering:
+    def __init__(self):
+        self.angle = 0
+    
+    def set_angle(self, value):
+        task_queue.put_nowait(self._set_angle(value))
+        
+    async def _set_angle(self, value):
+        self.angle = value
+
+class Brakes:
+    def __init__(self):
+        self.state = 0
+    
+    def on(self):
+        task_queue.put_nowait(self._on())
+    
+    async def _on(self):
+        self.state = 1
+    
+    def off(self):
+        task_queue.put_nowait(self._off())
+    
+    async def _off(self):
+        self.state = 0
+    
+    def set_value(self, value):
+        task_queue.put_nowait(self._set_value(value))
+    
+    def _set_value(self, value):
+        self.value = value
+
+class Gearbox:
+    def __init__(self):
+        self.gear = 0
+        
+    def D(self):
+        task_queue.put_nowait(self._D())
+    
+    async def _D(self):
+        self.gear = 1
+
+    def R(self):
+        task_queue.put_nowait(self._R())
+    
+    async def _R(self):
+        self.gear = -1
+
+    def P(self):
+        task_queue.put_nowait(self._P())
+
+    async def _P(self):
+        self.gear = 0
+
+class FuelSystem:
+    def __init__(self):
+        self.fuel = 100
+
+    def add_fuel(self, value):
+        task_queue.put_nowait(self._add_fuel(value))
+
+    async def _add_fuel(self, value):
+        self.fuel += value
+
+    def get_fuel(self):
+        task_queue.put_nowait(self._get_fuel())
+
+    async def _get_fuel(self):
+        return self.fuel
 
 class Car:
     def __init__(self):
-        self.power = 0
-        self.engine_started = True
-        self.wheel_angle = 0
+        self.engine = Engine()
+        self.headlights = Headlights()
+        self.steering = Steering()
+        self.brakes = Brakes()
+        self.gearbox = Gearbox()
+        self.fuel_system = FuelSystem() 
 
-    def forward(self):
-        task_queue.put_nowait(self._forward())
+class Condition:
+    def __init__(self, check_func):
+        self.check_func = check_func
+    
+    def __bool__(self):
+        return self.check_func()
 
-    async def _forward(self):
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
+    def __call__(self):
+        return self.check_func()
+    
+    #def __str__(self):
+    #    return str(self.check_func())
 
-    def backward(self):
-        task_queue.put_nowait(self._backward())
+class Color:
+    def __init__(self, value):
+        self.value = value
+    
+    def __eq__(self, other):
+        return Condition(lambda: self.value == other.value)
+    
+    def __ne__(self, other):
+        return Condition(lambda: self.value != other.value)
+    
+    def __str__(self):
+        return ['red', 'yellow', 'green'][self.value]
 
-    async def _backward(self):
-        self.power = -1
-        await asyncio.sleep(1)
-        self.power = 0
+class Light:
+    RED = Color(0)
+    YELLOW = Color(1)
+    GREEN = Color(2)
+    def __init__(self, id, color):
+        self.id = id
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
 
-    def right(self):
-        task_queue.put_nowait(self._right())
+    def set_color(self, color):
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
 
-    async def _right(self):
-        self.wheel_angle = 30
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
-        self.wheel_angle = 0
-
-    def left(self):
-        task_queue.put_nowait(self._left())
-
-    async def _left(self):
-        self.wheel_angle = -30
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
-        self.wheel_angle = 0
-
-    def stop(self):
-        task_queue.put_nowait(self._stop())
-
-    async def _stop(self):
-        self.power = 0
-
+    def get_color(self):
+        return self.color
 
 def sleep(seconds):
     task_queue.put_nowait(asyncio.sleep(seconds))
 
+def wait(condition):
+    task_queue.put_nowait(_check_condition(condition))
+
+async def _check_condition(condition):
+    print('loop')
+    while not condition():
+        print(condition.check_func)
+        #print((light.color == GREEN)())
+        await asyncio.sleep(0.1)
+
+RED = Color(0)
+YELLOW = Color(1)
+GREEN = Color(2)
 
 car = Car()
+light = Light(2, RED)
 `;
-        baseCodeEditorText = `# Теперь ты можешь управлять машиной более точно
-        
-# Выполни функцию forward, backward, right или left у car, чтобы посмотреть, что они делают
-
-`;
+        var baseCodeEditorText = '';
 
         var objects = [
+            {
+                id: 1,
+                type: 'road',
+                x: window.innerWidth / 4,
+                y: window.innerHeight / 2 - ((2214 - window.innerHeight) / 2),
+                width: 222,
+                height: 2214,
+                rotate: 0,
+                path: '/static/assets/4/road.png',
+                opacity: 1
+            },
+            {
+                id: 2,
+                type: 'light',
+                x: window.innerWidth / 4 + 180, 
+                y: window.innerHeight - 400, 
+                width: 222,
+                height: 2214,
+                rotate: 0,
+                color: 'red',
+                rotate: Math.PI,
+                opacity: 1
+            },
             {
                 id: null, 
                 type: 'car', 
                 x: window.innerWidth / 4, 
-                y: window.innerHeight - 100, 
+                y: window.innerHeight - 250, 
                 width: 80, 
                 height: 40,
-                rotate: -Math.PI / 2
+                rotate: 0
             },
         ];
+
+        messages = [];
+
+        let = iId = setInterval(async () => {
+            let light = getBodyById(2);
+            if (light.color === 0) {
+                light.color = 2;
+                await evaluatePython('light.set_color(Light.GREEN)');
+            }
+            else {
+                light.color = 0;
+                await evaluatePython('light.set_color(Light.RED)');
+            }
+        }, 5000);
     </script>
 {% endblock %}

@@ -84,8 +84,6 @@ async function evaluatePython(code) {
     let pyodide = await pyodideReadyPromise;
     let cm = document.querySelector('.CodeMirror')
     try {
-        console.log(code);
-        
         let output = await pyodide.runPythonAsync(code);
         if (output) {
             cm.style.transition = '.5s';
