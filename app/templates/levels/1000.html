@@ -5,7 +5,7 @@
         var levelId = 3;
         var fixedCamera = true;
 
-        var basePythonCode = `
+        var basePythonCode = /*python*/ `
 import asyncio
 
 async def _process_tasks():
@@ -155,10 +155,10 @@ class Color:
         self.value = value
     
     def __eq__(self, other):
-        return Condition(lambda: self.value == other.value)
-    
+        return lambda: self.value == other.value
+        
     def __ne__(self, other):
-        return Condition(lambda: self.value != other.value)
+        return lambda: self.value != other.value
     
     def __str__(self):
         return ['red', 'yellow', 'green'][self.value]
@@ -188,17 +188,25 @@ def wait(condition):
 async def _check_condition(condition):
     print('loop')
     while not condition():
-        print(condition.check_func)
+        #print('loop1')
+        print(condition())
         #print((light.color == GREEN)())
         await asyncio.sleep(0.1)
+        
+def aprint(*args, **kwargs):
+    task_queue.put_nowait(_aprint(*args, **kwargs))
+
+async def _aprint(*args, **kwargs):
+    print(*args, **kwargs)
 
 RED = Color(0)
 YELLOW = Color(1)
 GREEN = Color(2)
 
 car = Car()
-light = Light(2, RED)
+light = Light(2, GREEN)
 `;
+        basePythonCode = '';
         var baseCodeEditorText = '';
 
         var objects = [
@@ -242,11 +250,11 @@ light = Light(2, RED)
             let light = getBodyById(2);
             if (light.color === 0) {
                 light.color = 2;
-                await evaluatePython('light.set_color(Light.GREEN)');
+                await evaluatePython('light.set_color(Light.GREEN); print("light change green", light.color, light)');
             }
             else {
                 light.color = 0;
-                await evaluatePython('light.set_color(Light.RED)');
+                await evaluatePython('light.set_color(Light.RED); print("light change red", light.color, light)');
             }
         }, 5000);
     </script>
