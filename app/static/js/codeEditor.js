@@ -36,20 +36,37 @@ editor.on('inputRead', function(cm, change) {
 });
 
 worker.onmessage = (event) => {
+    console.log(event);
     if (event.data.type === 'loaded') {
         document.querySelector('.loading_block').remove();
+        console.log('Pyodide loaded');
+        
         worker.postMessage({code: basePythonCode});
+        // worker.postMessage({code: 'print(car)'});
         editor.setValue(window.localStorage.getItem('code'));
         // event.pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
     }
 
-    else if (event.data.type === 'successful code eval') {
-        let globals = JSON.parse(event.data.globals);
-        console.log(globals);
+    else if (event.data.type === 'partial code eval') {
         
-        setInterval(async () => {
-            if (globals.get('car')) window.carControl = globals.get('car').toJs();
-            if (globals.get('light')) window.lightControl = globals.get('light').toJs();
+        let gameObjects = event.data.gameObjects;
+        gameObjects = JSON.parse(gameObjects);
+        
+        setTimeout(() => {
+            console.log('hvhv');
+            if (gameObjects.car) window.carControl = gameObjects.car;
+            if (gameObjects.light) window.lightControl = gameObjects.light;
+        }, 50);
+    }
+
+    else if (event.data.type === 'successful code eval') {
+        let gameObjects = event.data.gameObjects;
+        gameObjects = JSON.parse(gameObjects);
+        
+        setTimeout(() => {
+            console.log('hvhv');
+            if (gameObjects.car) window.carControl = gameObjects.car;
+            if (gameObjects.light) window.lightControl = gameObjects.light;
         }, 50);
     }
 
@@ -67,3 +84,16 @@ worker.onmessage = (event) => {
         outputElement.textContent = event.data.result || 'Code executed successfully!';
     }
 };
+
+// Убери
+let iId = setInterval(() => {
+    let light = getBodyById(2);
+    if (light.color === 0) {
+        light.color = 2;
+        worker.postMessage({code: 'light.set_color(Light.GREEN); print("light change green", light.color, light)'});
+    }
+    else {
+        light.color = 0;
+        worker.postMessage({code: 'light.set_color(Light.RED); print("light change red", light.color, light)'});
+    }
+}, 5000);

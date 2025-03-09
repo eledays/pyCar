@@ -6,6 +6,16 @@
         var fixedCamera = true;
 
         var basePythonCode = /*python*/ `
+import json
+import time
+
+gameObjects = dict()
+
+def update():
+    global gameObjects
+    print('update')
+    js_callback(json.dumps(gameObjects, default=lambda o: o.__dict__))
+
 class Engine:
     def __init__(self):
         self.started = False
@@ -13,71 +23,87 @@ class Engine:
     
     def start(self):
         self.started = True
+        update()
 
     def stop(self):
         self.started = False
+        update()
 
     def set_power(self, value):
         self.power = value / 100
+        update()
 
 class Headlights:
     def __init__(self):
         self.state = 0
+        update()
     
     def on(self):
         self.state = 1
+        update()
 
     def off(self):
         self.state = 0
+        update()
 
 class Steering:
     def __init__(self):
         self.angle = 0
+        update()
     
     def set_angle(self, value):
         self.angle = value
+        update()
 
 class Brakes:
     def __init__(self):
         self.state = 0
+        update()
     
     def on(self):
         self.state = 1
+        update()
     
     def off(self):
         self.state = 0
+        update()
     
     def set_value(self, value):
         self.value = value
+        update()
 
 class Gearbox:
     def __init__(self):
         self.gear = 0
+        update()
         
     def D(self):
         self.gear = 1
+        update()
 
     def R(self):
         self.gear = -1
+        update()
 
     def P(self):
         self.gear = 0
+        update()
 
 class FuelSystem:
     def __init__(self):
         self.fuel = 100
+        update()
 
     def add_fuel(self, value):
         self.fuel += value
+        update()
 
     def get_fuel(self):
         return self.fuel
+        update()
 
 class Car:
     def __init__(self):
-        global gameObjects
-        gameObjects.append(self)
-
         self.engine = Engine()
         self.headlights = Headlights()
         self.steering = Steering()
@@ -85,33 +111,53 @@ class Car:
         self.gearbox = Gearbox()
         self.fuel_system = FuelSystem()
 
-class Light:
-    RED = 0
-    YELLOW = 1
-    GREEN = 2
-    def __init__(self, id, color):
-        global gameObjects
-        gameObjects.append(self)
+class Color:
+    def __init__(self, value):
+        self.value = value
+    
+    def __eq__(self, other):
+        return lambda: self.value == other.value
+        
+    def __ne__(self, other):
+        return lambda: self.value != other.value
+    
+    def __str__(self):
+        return ['red', 'yellow', 'green'][self.value]
 
+class Light:
+    RED = Color(0)
+    YELLOW = Color(1)
+    GREEN = Color(2)
+    def __init__(self, id, color):
         self.id = id
         self.color = color
-        self.str_color = ['red', 'yellow', 'green'][self.color]
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+        update()
 
     def set_color(self, color):
         self.color = color
-        self.str_color = ['red', 'yellow', 'green'][self.color]
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+        update()
 
     def get_color(self):
         return self.color
+        update()
 
-gameObjects = []
+def wait(condition):
+    while not condition():
+        time.sleep(.01)
 
-RED = 0
-YELLOW = 1
-GREEN = 2
+RED = Color(0)
+YELLOW = Color(1)
+GREEN = Color(2)
 
 car = Car()
 light = Light(2, GREEN)
+
+gameObjects = {
+    'car': car,
+    'light': light
+}
 
 print(gameObjects)
 `;
@@ -154,17 +200,5 @@ print(gameObjects)
         ];
 
         messages = [];
-
-        // let = iId = setInterval(async () => {
-        //     let light = getBodyById(2);
-        //     if (light.color === 0) {
-        //         light.color = 2;
-        //         await evaluatePython('light.set_color(Light.GREEN); print("light change green", light.color, light)');
-        //     }
-        //     else {
-        //         light.color = 0;
-        //         await evaluatePython('light.set_color(Light.RED); print("light change red", light.color, light)');
-        //     }
-        // }, 5000);
     </script>
 {% endblock %}

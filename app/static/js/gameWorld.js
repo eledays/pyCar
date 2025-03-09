@@ -9,10 +9,13 @@ const engine = Engine.create();
 engine.world.gravity.y = 0; 
 const world = engine.world;
 
+let speed = 0;
+let wheelAngle = 0;
+
 // Константы
 const maxWheelAngle = Math.PI / 6;
 const maxSpeed = 10;
-const acceleration = 0.05;
+const acceleration = 0.07;
 const deceleration = 0.05;
 const breakDeceleration = 0.08;
 const wheelRotateSpeed = 0.06;
@@ -202,8 +205,8 @@ function getBodyById(id) {
     return Composite.allBodies(world).find(body => body.id === id);
 }
 
-Events.on(engine, 'beforeUpdate', () => {
-    if (car === null) return;
+Events.on(engine, 'beforeUpdate', () =>  {
+    if (car === null) return;    
 
     const velocity = Body.getVelocity(car);
     const currentSpeedX = velocity.x;
@@ -220,6 +223,8 @@ Events.on(engine, 'beforeUpdate', () => {
     let speed = (currentSpeedX * directionX + currentSpeedY * directionY);
 
     if (window.carControl) {
+
+        console.log(window.carControl.engine.power);
         speed += (
             acceleration * 
             window.carControl.engine.power * 
@@ -240,7 +245,7 @@ Events.on(engine, 'beforeUpdate', () => {
         //     if (speed < 0) speed = Math.min(speed + deceleration, 0);
         // }
 
-        // brakes
+
         // if (window.carControl.brakes) {
         //     if (Math.abs(speed) < breakDeceleration) speed = 0;
         //     else if (speed > 0) speed -= breakDeceleration;
@@ -256,16 +261,16 @@ Events.on(engine, 'beforeUpdate', () => {
         // }
     }
 
-    // const turnRadius = car.width / Math.tan(wheelAngle);
+    const turnRadius = car.width / Math.tan(wheelAngle);
 
-    // if (Math.abs(wheelAngle) > 0.01) {
-    //     const angularVelocity = speed / turnRadius; // Угловая скорость
-    //     console.log(car);
-    //     Body.setAngularVelocity(car, angularVelocity);
-    // } else {
-    //     // Прямолинейное движение
-    //     Body.setAngularVelocity(car, 0); 
-    // }
+    if (Math.abs(wheelAngle) > 0.01) {
+        const angularVelocity = speed / turnRadius; // Угловая скорость
+        console.log(car);
+        Body.setAngularVelocity(car, angularVelocity);
+    } else {
+        // Прямолинейное движение
+        Body.setAngularVelocity(car, 0); 
+    }
 
     const velocityX = Math.sin(angle) * speed;
     const velocityY = -Math.cos(angle) * speed;

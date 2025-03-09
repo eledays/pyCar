@@ -7,6 +7,7 @@ async function initializePyodide() {
     });
     self.postMessage({ type: 'loaded' });
     pageLoaded = true;
+    pyodide.globals.set("js_callback", (data) => self.postMessage({type: 'partial code eval', gameObjects: data}));
 }
 
 initializePyodide();
@@ -16,14 +17,11 @@ self.onmessage = async (event) => {
 
     try {
         const result = await pyodide.runPythonAsync(code);
-        const gameObjects = pyodide.globals.get('gameObjects');
         
-        for (let i = 0; i < gameObjects.length; i++) {
-            console.log(gameObjects[i]);
-        }    
-        const car = pyodide.globals.get('car');
-        console.log(car);
-        
+        const gameObjects = await pyodide.runPythonAsync(`
+            import json
+            json.dumps(gameObjects, default=lambda o: o.__dict__)
+        `);
         
         self.postMessage({ type: 'successful code eval', result: result, gameObjects: gameObjects });
     } catch (error) {
