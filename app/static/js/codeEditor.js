@@ -1,3 +1,5 @@
+const worker = new Worker('/static/js/worker.js');
+
 var runCodeButton = document.querySelector('#sendButton');
 var output_block = document.querySelector('.code #output');
 
@@ -19,6 +21,13 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     }
 });
 
+runCodeButton.addEventListener('click', async () => {
+    let code = editor.getValue();
+    worker.postMessage({ code: code });
+});
+
+editor.setValue(baseCodeEditorText);
+
 editor.on('inputRead', function(cm, change) {
     if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
         CodeMirror.commands.autocomplete(cm);
@@ -26,83 +35,35 @@ editor.on('inputRead', function(cm, change) {
     window.localStorage.setItem('code', editor.getValue());
 });
 
-runCodeButton.addEventListener('click', async () => {
-    if (runCodeButton.classList.contains('deactivated')) return;
-    runCodeButton.classList.add('deactivated');
-
-    output_block.innerHTML = '';
-    let code = editor.getValue();
-    
-    await evaluatePython(code);
-
-    runCodeButton.classList.remove('deactivated');
-});
-
-editor.setValue(baseCodeEditorText);
-
-async function load() {
-    // document.querySelector('.loading_block').remove();
-    // return;
-
-    let pyodide = await loadPyodide();
-    pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
-
-    console.log('ready');
-    document.querySelector('.loading_block').remove();
-    pageLoaded = true;
-
-    pyodide.runPython(basePythonCode);
-
-    setInterval(async () => {
-        if (pyodide.globals.get('car')) window.carControl = pyodide.globals.get('car').toJs();
-        if (pyodide.globals.get('light')) window.lightControl = pyodide.globals.get('light').toJs();
-    }, 50);
-
-    console.log(messages)
-    for (let message of messages) {
-        if (message.length === 2) {
-            setTimeout(() => addMessage(message[0]), message[1]);
-        }
-        else if (message.length === 3 && message[2] === 'newBlock') {            
-            setTimeout(() => addMessage(message[0], 'text', null, false, true), message[1]);
-        }
-        else if (message.length === 3) {
-            setTimeout(() => addMessage(message[0], 'button', message[2]), message[1]);
-        }
+worker.onmessage = (event) => {
+    if (event.data.type === 'loaded') {
+        document.querySelector('.loading_block').remove();
+        worker.postMessage({code: basePythonCode});
+        editor.setValue(window.localStorage.getItem('code'));
+        // event.pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
     }
 
-    editor.setValue(window.localStorage.getItem('code'));
+    else if (event.data.type === 'successful code eval') {
+        let globals = JSON.parse(event.data.globals);
+        console.log(globals);
+        
+        setInterval(async () => {
+            if (globals.get('car')) window.carControl = globals.get('car').toJs();
+            if (globals.get('light')) window.lightControl = globals.get('light').toJs();
+        }, 50);
+    }
 
-    return pyodide;
-};
-
-let pyodideReadyPromise = load();
-
-async function evaluatePython(code) {
-    if (window.localStorage.getItem('no_wasm') === true) return;
-
-    let pyodide = await pyodideReadyPromise;
-    let cm = document.querySelector('.CodeMirror')
-    try {
-        let output = await pyodide.runPythonAsync(code);
-        if (output) {
-            cm.style.transition = '.5s';
-            cm.style.height = '70%';
-            setTimeout(() => {
-                cm.style.transition = 'none';
-            }, 500);
-        }
-        output_block.classList.remove('error');
-    } catch (err) {
-        console.log(err);
-        output_block.innerHTML = err;
-        if (err) {
-            cm.style.transition = '.5s';
-            cm.style.height = '70%';
-        }
+    const outputElement = document.getElementById('output');
+    if (event.data.error) {
+        let cm = document.querySelector('.CodeMirror');
+        outputElement.textContent = `Error: ${event.data.error}`;
+        output_block.classList.add('error');
+        cm.style.transition = '.5s';
+        cm.style.height = '70%';
         setTimeout(() => {
             cm.style.transition = 'none';
         }, 500);
-        output_block.classList.add('error');
+    } else {
+        outputElement.textContent = event.data.result || 'Code executed successfully!';
     }
-}
+};

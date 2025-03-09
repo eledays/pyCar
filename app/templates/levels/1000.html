@@ -6,40 +6,18 @@
         var fixedCamera = true;
 
         var basePythonCode = /*python*/ `
-import asyncio
-
-async def _process_tasks():
-    while True:
-        task = await task_queue.get()
-        await task
-        task_queue.task_done()
-
-task_queue = asyncio.Queue()
-asyncio.create_task(_process_tasks())
-
 class Engine:
     def __init__(self):
         self.started = False
         self.power = 0
     
     def start(self):
-        print('start')
-        task_queue.put_nowait(self._start())
-
-    async def _start(self):
         self.started = True
 
     def stop(self):
-        print('stop')
-        task_queue.put_nowait(self._stop())
-
-    def _stop(self):
         self.started = False
 
     def set_power(self, value):
-        task_queue.put_nowait(self._set_power(value))
-
-    async def _set_power(self, value):
         self.power = value / 100
 
 class Headlights:
@@ -47,25 +25,16 @@ class Headlights:
         self.state = 0
     
     def on(self):
-        task_queue.put_nowait(self._on())
-    
-    async def _on(self):
         self.state = 1
 
     def off(self):
-        task_queue.put_nowait(self._off())
-    
-    async def _off(self):
-        self.state = 0        
+        self.state = 0
 
 class Steering:
     def __init__(self):
         self.angle = 0
     
     def set_angle(self, value):
-        task_queue.put_nowait(self._set_angle(value))
-        
-    async def _set_angle(self, value):
         self.angle = value
 
 class Brakes:
@@ -73,21 +42,12 @@ class Brakes:
         self.state = 0
     
     def on(self):
-        task_queue.put_nowait(self._on())
-    
-    async def _on(self):
         self.state = 1
     
     def off(self):
-        task_queue.put_nowait(self._off())
-    
-    async def _off(self):
         self.state = 0
     
     def set_value(self, value):
-        task_queue.put_nowait(self._set_value(value))
-    
-    def _set_value(self, value):
         self.value = value
 
 class Gearbox:
@@ -95,21 +55,12 @@ class Gearbox:
         self.gear = 0
         
     def D(self):
-        task_queue.put_nowait(self._D())
-    
-    async def _D(self):
         self.gear = 1
 
     def R(self):
-        task_queue.put_nowait(self._R())
-    
-    async def _R(self):
         self.gear = -1
 
     def P(self):
-        task_queue.put_nowait(self._P())
-
-    async def _P(self):
         self.gear = 0
 
 class FuelSystem:
@@ -117,96 +68,54 @@ class FuelSystem:
         self.fuel = 100
 
     def add_fuel(self, value):
-        task_queue.put_nowait(self._add_fuel(value))
-
-    async def _add_fuel(self, value):
         self.fuel += value
 
     def get_fuel(self):
-        task_queue.put_nowait(self._get_fuel())
-
-    async def _get_fuel(self):
         return self.fuel
 
 class Car:
     def __init__(self):
+        global gameObjects
+        gameObjects.append(self)
+
         self.engine = Engine()
         self.headlights = Headlights()
         self.steering = Steering()
         self.brakes = Brakes()
         self.gearbox = Gearbox()
-        self.fuel_system = FuelSystem() 
-
-class Condition:
-    def __init__(self, check_func):
-        self.check_func = check_func
-    
-    def __bool__(self):
-        return self.check_func()
-
-    def __call__(self):
-        return self.check_func()
-    
-    #def __str__(self):
-    #    return str(self.check_func())
-
-class Color:
-    def __init__(self, value):
-        self.value = value
-    
-    def __eq__(self, other):
-        return lambda: self.value == other.value
-        
-    def __ne__(self, other):
-        return lambda: self.value != other.value
-    
-    def __str__(self):
-        return ['red', 'yellow', 'green'][self.value]
+        self.fuel_system = FuelSystem()
 
 class Light:
-    RED = Color(0)
-    YELLOW = Color(1)
-    GREEN = Color(2)
+    RED = 0
+    YELLOW = 1
+    GREEN = 2
     def __init__(self, id, color):
+        global gameObjects
+        gameObjects.append(self)
+
         self.id = id
         self.color = color
-        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+        self.str_color = ['red', 'yellow', 'green'][self.color]
 
     def set_color(self, color):
         self.color = color
-        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+        self.str_color = ['red', 'yellow', 'green'][self.color]
 
     def get_color(self):
         return self.color
 
-def sleep(seconds):
-    task_queue.put_nowait(asyncio.sleep(seconds))
+gameObjects = []
 
-def wait(condition):
-    task_queue.put_nowait(_check_condition(condition))
-
-async def _check_condition(condition):
-    print('loop')
-    while not condition():
-        #print('loop1')
-        print(condition())
-        #print((light.color == GREEN)())
-        await asyncio.sleep(0.1)
-        
-def aprint(*args, **kwargs):
-    task_queue.put_nowait(_aprint(*args, **kwargs))
-
-async def _aprint(*args, **kwargs):
-    print(*args, **kwargs)
-
-RED = Color(0)
-YELLOW = Color(1)
-GREEN = Color(2)
+RED = 0
+YELLOW = 1
+GREEN = 2
 
 car = Car()
 light = Light(2, GREEN)
+
+print(gameObjects)
 `;
-        basePythonCode = '';
+
         var baseCodeEditorText = '';
 
         var objects = [
@@ -246,16 +155,16 @@ light = Light(2, GREEN)
 
         messages = [];
 
-        let = iId = setInterval(async () => {
-            let light = getBodyById(2);
-            if (light.color === 0) {
-                light.color = 2;
-                await evaluatePython('light.set_color(Light.GREEN); print("light change green", light.color, light)');
-            }
-            else {
-                light.color = 0;
-                await evaluatePython('light.set_color(Light.RED); print("light change red", light.color, light)');
-            }
-        }, 5000);
+        // let = iId = setInterval(async () => {
+        //     let light = getBodyById(2);
+        //     if (light.color === 0) {
+        //         light.color = 2;
+        //         await evaluatePython('light.set_color(Light.GREEN); print("light change green", light.color, light)');
+        //     }
+        //     else {
+        //         light.color = 0;
+        //         await evaluatePython('light.set_color(Light.RED); print("light change red", light.color, light)');
+        //     }
+        // }, 5000);
     </script>
 {% endblock %}

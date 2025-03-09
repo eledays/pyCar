@@ -4,7 +4,7 @@ const { Engine, Render, Runner, World, Bodies, Body, Events, Constraint, Composi
 const width = window.innerWidth / 2;
 const height = window.innerHeight;
 
-// Объекты движка
+// // Объекты движка
 const engine = Engine.create();
 engine.world.gravity.y = 0; 
 const world = engine.world;
@@ -114,8 +114,6 @@ function createObjects(objects) {
             World.add(world, road);
         }
         else if (obj.type === 'light') {
-            console.log(`/static/assets/${obj.color}_light.png`);
-            
             let light = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
                 isStatic: true,
                 isSensor: true,
