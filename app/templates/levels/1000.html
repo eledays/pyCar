@@ -8,12 +8,12 @@
         var basePythonCode = /*python*/ `
 import json
 import time
+import asyncio
 
 gameObjects = dict()
 
-def update():
+def js_sync():
     global gameObjects
-    print('update')
     js_callback(json.dumps(gameObjects, default=lambda o: o.__dict__))
 
 class Engine:
@@ -23,84 +23,84 @@ class Engine:
     
     def start(self):
         self.started = True
-        update()
+        js_sync()
 
     def stop(self):
         self.started = False
-        update()
+        js_sync()
 
     def set_power(self, value):
         self.power = value / 100
-        update()
+        js_sync()
 
 class Headlights:
     def __init__(self):
         self.state = 0
-        update()
+        js_sync()
     
     def on(self):
         self.state = 1
-        update()
+        js_sync()
 
     def off(self):
         self.state = 0
-        update()
+        js_sync()
 
 class Steering:
     def __init__(self):
         self.angle = 0
-        update()
+        js_sync()
     
     def set_angle(self, value):
         self.angle = value
-        update()
+        js_sync()
 
 class Brakes:
     def __init__(self):
         self.state = 0
-        update()
+        js_sync()
     
     def on(self):
         self.state = 1
-        update()
+        js_sync()
     
     def off(self):
         self.state = 0
-        update()
+        js_sync()
     
     def set_value(self, value):
         self.value = value
-        update()
+        js_sync()
 
 class Gearbox:
     def __init__(self):
         self.gear = 0
-        update()
+        js_sync()
         
     def D(self):
         self.gear = 1
-        update()
+        js_sync()
 
     def R(self):
         self.gear = -1
-        update()
+        js_sync()
 
     def P(self):
         self.gear = 0
-        update()
+        js_sync()
 
 class FuelSystem:
     def __init__(self):
         self.fuel = 100
-        update()
+        js_sync()
 
     def add_fuel(self, value):
         self.fuel += value
-        update()
+        js_sync()
 
     def get_fuel(self):
         return self.fuel
-        update()
+        js_sync()
 
 class Car:
     def __init__(self):
@@ -111,15 +111,28 @@ class Car:
         self.gearbox = Gearbox()
         self.fuel_system = FuelSystem()
 
+class Condition:
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self):
+        return self.func()
+
+    def __bool__(self):
+        return bool(self.func())
+
+    def __str__(self):
+        return str(self.func())
+
 class Color:
     def __init__(self, value):
         self.value = value
     
     def __eq__(self, other):
-        return lambda: self.value == other.value
+        return Condition(lambda: self.value == other.value)
         
     def __ne__(self, other):
-        return lambda: self.value != other.value
+        return Condition(lambda: self.value != other.value)
     
     def __str__(self):
         return ['red', 'yellow', 'green'][self.value]
@@ -132,20 +145,44 @@ class Light:
         self.id = id
         self.color = color
         self.str_color = ['red', 'yellow', 'green'][self.color.value]
-        update()
+        js_sync()
 
     def set_color(self, color):
         self.color = color
         self.str_color = ['red', 'yellow', 'green'][self.color.value]
-        update()
+        js_sync()
 
     def get_color(self):
         return self.color
-        update()
+        js_sync()
 
 def wait(condition):
     while not condition():
-        time.sleep(.01)
+        handle_states(js_get_state())
+        time.sleep(0.01)
+
+def handle_states(states):
+    for i in range(len(states)):
+        if states[i] == 'light_green':
+            light.set_color(GREEN)
+        elif states[i] == 'light_red':
+            light.set_color(RED)
+
+#def update():
+#    global last_update_time
+#    if time.time() - last_update_time > 3:
+#        global light
+#        color = light.get_color()
+#        if color == RED:
+#            light.set_color(GREEN)
+#        elif color == GREEN:
+#            light.set_color(RED)
+#        
+#        js_sync()
+#        last_update_time = time.time()
+
+async def change_color(color):
+    light.set_color(color)
 
 RED = Color(0)
 YELLOW = Color(1)
@@ -159,7 +196,7 @@ gameObjects = {
     'light': light
 }
 
-print(gameObjects)
+last_update_time = time.time()
 `;
 
         var baseCodeEditorText = '';

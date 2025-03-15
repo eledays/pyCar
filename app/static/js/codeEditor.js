@@ -1,4 +1,5 @@
 const worker = new Worker('/static/js/worker.js');
+const worker1 = new Worker('/static/js/worker.js');
 
 var runCodeButton = document.querySelector('#sendButton');
 var output_block = document.querySelector('.code #output');
@@ -23,7 +24,7 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
 
 runCodeButton.addEventListener('click', async () => {
     let code = editor.getValue();
-    worker.postMessage({ code: code });
+    worker.postMessage({ code: code, async: true });
 });
 
 editor.setValue(baseCodeEditorText);
@@ -32,11 +33,16 @@ editor.on('inputRead', function(cm, change) {
     if (change.text[0].match(/[a-zA-Z0-9_]/)) { // Если вводится буква, цифра или _
         CodeMirror.commands.autocomplete(cm);
     }
-    window.localStorage.setItem('code', editor.getValue());
+});
+
+editor.on('change', function(cm, change) {
+    if (change.origin !== 'setValue') { 
+        window.localStorage.setItem('code', editor.getValue());
+    }
 });
 
 worker.onmessage = (event) => {
-    console.log(event);
+    // console.log(event);
     if (event.data.type === 'loaded') {
         document.querySelector('.loading_block').remove();
         console.log('Pyodide loaded');
@@ -53,7 +59,6 @@ worker.onmessage = (event) => {
         gameObjects = JSON.parse(gameObjects);
         
         setTimeout(() => {
-            console.log('hvhv');
             if (gameObjects.car) window.carControl = gameObjects.car;
             if (gameObjects.light) window.lightControl = gameObjects.light;
         }, 50);
@@ -64,7 +69,6 @@ worker.onmessage = (event) => {
         gameObjects = JSON.parse(gameObjects);
         
         setTimeout(() => {
-            console.log('hvhv');
             if (gameObjects.car) window.carControl = gameObjects.car;
             if (gameObjects.light) window.lightControl = gameObjects.light;
         }, 50);
@@ -85,15 +89,19 @@ worker.onmessage = (event) => {
     }
 };
 
-// Убери
+let fl = false;
 let iId = setInterval(() => {
-    let light = getBodyById(2);
-    if (light.color === 0) {
-        light.color = 2;
-        worker.postMessage({code: 'light.set_color(Light.GREEN); print("light change green", light.color, light)'});
+    // let light = pyodide.globals.get('light');
+    
+    // console.log(light);
+    // if (light === undefined) return;
+    // worker.postMessage({ code: 'await change_color(RED)', async: false });
+    
+    if (fl) {
+        worker.postMessage({ code: 'await change_color(RED)', async: false });
     }
     else {
-        light.color = 0;
-        worker.postMessage({code: 'light.set_color(Light.RED); print("light change red", light.color, light)'});
+        worker.postMessage({ code: 'await change_color(GREEN)', async: false });
     }
-}, 5000);
+    fl = !fl;
+}, 3000);

@@ -223,8 +223,6 @@ Events.on(engine, 'beforeUpdate', () =>  {
     let speed = (currentSpeedX * directionX + currentSpeedY * directionY);
 
     if (window.carControl) {
-
-        console.log(window.carControl.engine.power);
         speed += (
             acceleration * 
             window.carControl.engine.power * 
