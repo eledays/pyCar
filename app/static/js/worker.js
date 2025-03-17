@@ -1,7 +1,5 @@
 importScripts('https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js');
 
-var states = [];
-
 let pyodide;
 async function initializePyodide() {
     pyodide = await loadPyodide({
@@ -10,40 +8,27 @@ async function initializePyodide() {
     self.postMessage({ type: 'loaded' });
     pageLoaded = true;
     pyodide.globals.set("js_callback", (data) => self.postMessage({type: 'partial code eval', gameObjects: data}));
-    pyodide.globals.set("js_get_state", () => {
-        const copy = [...states];
-        states = []
-        return copy;
-    });
 }
 
 initializePyodide();
 
-self.onmessage = async (event) => {
-    console.log('worker hi');
-    
+self.onmessage = async (event) => {    
     if (event.data.type === 'change_state') {
         let light = pyodide.globals.get('light');
         light.set_color(light.GREEN);
         return;
     }
+    else if (event.data.type === 'connect') {
+        pyodide.globals.set("js_get_state", () => {
+            return [event.data.states.pop(0)];
+        });
+    }
 
     const { code } = event.data;
 
-    try {
-        const asyncCode = `
-async def async_wrapper():
-    ${code.replace(/\n/g, '\n    ')}
-await async_wrapper()
-        `;        
+    try {        
+        const result = await pyodide.runPythonAsync(code);
         
-        let result = null;
-        if (event.data.async) {
-            result = await pyodide.runPythonAsync(asyncCode);
-        }
-        else {
-            result = await pyodide.runPythonAsync(code);
-        }
         
         const gameObjects = await pyodide.runPythonAsync(`
             import json
@@ -61,11 +46,17 @@ await async_wrapper()
 
 // УБРАТЬ
 // let iId = setInterval(() => {
+//     console.log(pyodide.globals.get('alive')());
+    
 //     let light = pyodide.globals.get('light');
 //     if (light.color === light.RED) {
-//         states.push('light_green');
+//         if (pyodide.globals.get('alive')()) pyodide.globals.get('light').set_color(light.GREEN);
+//         else states.push('light_green');
 //     }
 //     else {
-//         states.push('light_red');
+//         if (pyodide.globals.get('alive')()) pyodide.globals.get('light').set_color(light.RED);
+//         else states.push('light_red');
 //     }
-// }, 3000);
+// }, 500);
+
+setInterval(() => {console.log('alive'), 100});

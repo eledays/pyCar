@@ -162,11 +162,15 @@ def wait(condition):
         time.sleep(0.01)
 
 def handle_states(states):
+    print(states)
     for i in range(len(states)):
         if states[i] == 'light_green':
             light.set_color(GREEN)
         elif states[i] == 'light_red':
             light.set_color(RED)
+
+def alive():
+    return True
 
 #def update():
 #    global last_update_time

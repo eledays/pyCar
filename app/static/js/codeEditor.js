@@ -1,10 +1,11 @@
 const worker = new Worker('/static/js/worker.js');
-const worker1 = new Worker('/static/js/worker.js');
 
 var runCodeButton = document.querySelector('#sendButton');
 var output_block = document.querySelector('.code #output');
 
 var pageLoaded = false;
+
+var states = [];
 
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     lineNumbers: true,
@@ -51,6 +52,8 @@ worker.onmessage = (event) => {
         // worker.postMessage({code: 'print(car)'});
         editor.setValue(window.localStorage.getItem('code'));
         // event.pyodide.setStdout({batched: (str) => output_block.innerHTML += '\n' + str});
+
+        worker.postMessage({type: 'connect', states});
     }
 
     else if (event.data.type === 'partial code eval') {
@@ -92,16 +95,14 @@ worker.onmessage = (event) => {
 let fl = false;
 let iId = setInterval(() => {
     // let light = pyodide.globals.get('light');
-    
-    // console.log(light);
-    // if (light === undefined) return;
-    // worker.postMessage({ code: 'await change_color(RED)', async: false });
-    
+    // if (light.color === light.RED) {
     if (fl) {
-        worker.postMessage({ code: 'await change_color(RED)', async: false });
+        // if (pyodide.globals.get('alive')()) pyodide.globals.get('light').set_color(light.GREEN);
+        states.push('light_green');
     }
     else {
-        worker.postMessage({ code: 'await change_color(GREEN)', async: false });
+        // if (pyodide.globals.get('alive')()) pyodide.globals.get('light').set_color(light.RED);
+        states.push('light_red');
     }
     fl = !fl;
-}, 3000);
+}, 500);
