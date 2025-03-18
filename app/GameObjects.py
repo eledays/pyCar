@@ -1,40 +1,143 @@
-import math
+import json
+import time
+import asyncio
 
+
+# def to_json():
+#     global gameObjects
+#     return json.dumps(gameObjects, default=lambda o: o.__dict__)
+
+
+class Engine:
+    def __init__(self):
+        self.started = False
+        self.power = 0
+    
+    def start(self):
+        self.started = True
+        
+    def stop(self):
+        self.started = False
+        
+    def set_power(self, value):
+        self.power = value / 100
+        
+
+class Headlights:
+    def __init__(self):
+        self.state = 0
+         
+    def on(self):
+        self.state = 1
+    
+    def off(self):
+        self.state = 0
+        
+
+class Steering:
+    def __init__(self):
+        self.angle = 0
+        
+    def set_angle(self, value):
+        self.angle = value
+        
+
+class Brakes:
+    def __init__(self):
+        self.state = 0
+        
+    def on(self):
+        self.state = 1
+        
+    def off(self):
+        self.state = 0
+    
+    def set_value(self, value):
+        self.value = value
+        
+
+class Gearbox:
+    def __init__(self):
+        self.gear = 0
+        
+    def D(self):
+        self.gear = 1
+    
+    def R(self):
+        self.gear = -1
+    
+    def P(self):
+        self.gear = 0
+        
+
+class FuelSystem:
+    def __init__(self):
+        self.fuel = 100
+
+    def add_fuel(self, value):
+        self.fuel += value
+
+    def get_fuel(self):
+        return self.fuel
+        
 
 class Car:
-
     def __init__(self):
-        self.power = 0
-        self.engine_started = False
-        self.wheel_angle = 0
+        self.engine = Engine()
+        self.headlights = Headlights()
+        self.steering = Steering()
+        self.brakes = Brakes()
+        self.gearbox = Gearbox()
+        self.fuel_system = FuelSystem()
 
-        self.error = None
 
-    def engine_start(self):
-        self.engine_started = True
+class Condition:
+    def __init__(self, func):
+        self.func = func
 
-    def set_power(self, power: int):
-        if abs(power) <= 1:
-            self.power = power
-        else:
-            self.error = 'Мощность должна быть в диапазоне от -1 до 1'
-            
-    def rotate(self, deg):
-        if abs(deg) <= 30:
-            self.wheel_angle = deg * math.pi / 180
-        else:
-            self.error = 'Угол поворота должен быть в диапазоне от -30 до 30 градусов'
+    def __call__(self):
+        return self.func()
 
-    def to_dict(self):
-        r = {}
+    def __bool__(self):
+        return bool(self.func())
 
-        if self.error:
-            r = {'error': self.error}
-            self.error = None
-            return r
+    def __str__(self):
+        return str(self.func())
 
-        for name, value in vars(self).items():
-            # name = name.replace(f'_{self.__class__.__name__}__', '')
-            r[name] = value
 
-        return r
+class Color:
+    def __init__(self, value):
+        self.value = value
+    
+    def __eq__(self, other):
+        return Condition(lambda: self.value == other.value)
+        
+    def __ne__(self, other):
+        return Condition(lambda: self.value != other.value)
+    
+    def __str__(self):
+        return ['red', 'yellow', 'green'][self.value]
+
+
+class Light:
+    RED = Color(0)
+    YELLOW = Color(1)
+    GREEN = Color(2)
+    def __init__(self, id, color):
+        self.id = id
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+
+    def set_color(self, color):
+        self.color = color
+        self.str_color = ['red', 'yellow', 'green'][self.color.value]
+
+    def get_color(self):
+        return self.color
+
+
+def wait(condition):
+    while not condition():
+        time.sleep(0.01)
+
+

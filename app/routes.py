@@ -1,4 +1,4 @@
-from app import app, car, DEFAULT_VARS, REQUIRED_CAR_ARGS
+from app import app, socketio
 
 from flask import request, jsonify, render_template, redirect, url_for
 import os
@@ -24,3 +24,16 @@ def level(level_id):
         return render_template(f'levels/{level_id}.html')
     else:
         return redirect('/')
+    
+
+@socketio.on('execute_code')
+def handle_execute_code(data):
+    code = data.get('code', '')
+    try:
+        exec_globals = {}
+        exec(code, exec_globals)
+        result = exec_globals
+    except Exception as error:
+        result = str(error)
+
+    socketio.emit('execution_result', jsonify({'result': result}))
