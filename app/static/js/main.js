@@ -34,96 +34,143 @@ var car = null;
 var glow = null;
 let mainLight = null;
 
-for (obj of objects) {
-    if (obj.type === 'car') {
-        glow = Bodies.rectangle(obj.x, obj.y - 70, obj.width, obj.height, {
-            isSensor: true,
-            render: {
-                sprite: {
-                    texture: '/static/assets/glow.png', 
-                    xScale: obj.width / 100,
-                    yScale: obj.height / 50,
-                },
-                fillStyle: null,
-                opacity: 0
-            },
-        });
-        World.add(world, glow);
+// for (obj of objects) {
+//     if (obj.type === 'car') {
+//         glow = Bodies.rectangle(obj.x, obj.y - 70, obj.width, obj.height, {
+//             isSensor: true,
+//             render: {
+//                 sprite: {
+//                     texture: '/static/assets/glow.png', 
+//                     xScale: obj.width / 100,
+//                     yScale: obj.height / 50,
+//                 },
+//                 fillStyle: null,
+//                 opacity: 0
+//             },
+//         });
+//         World.add(world, glow);
 
-        car = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            friction: 0.02, // Трение
-            render: {
-                sprite: {
-                    texture: '/static/assets/white_car.png', 
-                    xScale: obj.width / 100,
-                    yScale: obj.height / 50,
-                },
-                fillStyle: null
-            },
-        });
-        car.width = car.bounds.max.x - car.bounds.min.x;
-        car.height = car.bounds.max.y - car.bounds.min.y;
-        Body.setAngle(car, obj.rotate);
-        World.add(world, car);
+//         car = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+//             friction: 0.02, // Трение
+//             render: {
+//                 sprite: {
+//                     texture: '/static/assets/white_car.png', 
+//                     xScale: obj.width / 100,
+//                     yScale: obj.height / 50,
+//                 },
+//                 fillStyle: null
+//             },
+//         });
+//         car.width = car.bounds.max.x - car.bounds.min.x;
+//         car.height = car.bounds.max.y - car.bounds.min.y;
+//         Body.setAngle(car, obj.rotate);
+//         World.add(world, car);
 
-        var constraint = Constraint.create({
-            bodyA: car,
-            bodyB: glow,
-            stiffness: 0,
-            length: 0,
-            pointA: { x: 0, y: 0 },
-            pointB: { x: 0, y: 70 }
-        });
-        World.add(world, constraint);
-    }
-    else if (obj.type === 'wall') {
-        const wall = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            isStatic: true,
-            render: {
-                fillStyle: '#fff',
-            }
-        });
-        World.add(world, wall);
-    }
-    else if (obj.type === 'road') {
-        const road = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            isStatic: true,
-            isSensor: true,
-            render: {
-                sprite: {
-                    texture: obj.path,
-                    // xScale: obj.width / 100,
-                    // yScale: obj.height / 50,
-                },
-                fillStyle: null,
-                opacity: obj.opacity
-            }
-        });
-        road.id = obj.id;
-        World.add(world, road);
-    }
-    else if (obj.type === 'light') {
-        console.log(`/static/assets/${obj.color}_light.png`);
+//         var constraint = Constraint.create({
+//             bodyA: car,
+//             bodyB: glow,
+//             stiffness: 0,
+//             length: 0,
+//             pointA: { x: 0, y: 0 },
+//             pointB: { x: 0, y: 70 }
+//         });
+//         World.add(world, constraint);
+//     }
+//     else if (obj.type === 'wall') {
+//         const wall = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+//             isStatic: true,
+//             render: {
+//                 fillStyle: '#fff',
+//             }
+//         });
+//         World.add(world, wall);
+//     }
+//     else if (obj.type === 'road') {
+//         const road = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+//             isStatic: true,
+//             isSensor: true,
+//             render: {
+//                 sprite: {
+//                     texture: obj.path,
+//                     // xScale: obj.width / 100,
+//                     // yScale: obj.height / 50,
+//                 },
+//                 fillStyle: null,
+//                 opacity: obj.opacity
+//             }
+//         });
+//         road.id = obj.id;
+//         World.add(world, road);
+//     }
+//     else if (obj.type === 'light') {
+//         console.log(`/static/assets/${obj.color}_light.png`);
         
-        let light = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
-            isStatic: true,
-            isSensor: true,
-            render: {
-                sprite: {
-                    texture: `/static/assets/${obj.color}_light.png`,
-                    // xScale: obj.width / 100,
-                    // yScale: obj.height / 50,
-                },
-                fillStyle: null,
-                opacity: obj.opacity
-            }
-        });
-        light.id = obj.id;
-        Body.setAngle(light, obj.rotate);
-        World.add(world, light);
-    }
+//         let light = Bodies.rectangle(obj.x, obj.y, obj.width, obj.height, {
+//             isStatic: true,
+//             isSensor: true,
+//             render: {
+//                 sprite: {
+//                     texture: `/static/assets/${obj.color}_light.png`,
+//                     // xScale: obj.width / 100,
+//                     // yScale: obj.height / 50,
+//                 },
+//                 fillStyle: null,
+//                 opacity: obj.opacity
+//             }
+//         });
+//         light.id = obj.id;
+//         Body.setAngle(light, obj.rotate);
+//         World.add(world, light);
+//     }
+// }
+
+let car_obj = {
+    x: window.innerWidth / 4, 
+    y: window.innerHeight - 100, 
+    width: 80, 
+    height: 40,
+    rotate: 0
 }
 
+glow = Bodies.rectangle(car_obj.x, car_obj.y - 70, car_obj.width, car_obj.height, {
+    isSensor: true,
+    render: {
+        sprite: {
+            texture: '/static/assets/glow.png', 
+            xScale: car_obj.width / 100,
+            yScale: car_obj.height / 50,
+        },
+        fillStyle: null,
+        opacity: 0
+    },
+});
+World.add(world, glow);
+
+car = Bodies.rectangle(car_obj.x, car_obj.y, car_obj.width, car_obj.height, {
+    friction: 0.02, // Трение
+    render: {
+        sprite: {
+            texture: '/static/assets/white_car.png', 
+            xScale: car_obj.width / 100,
+            yScale: car_obj.height / 50,
+        },
+        fillStyle: null
+    },
+});
+car.width = car.bounds.max.x - car.bounds.min.x;
+car.height = car.bounds.max.y - car.bounds.min.y;
+Body.setAngle(car, car_obj.rotate);
+World.add(world, car);
+
+var constraint = Constraint.create({
+    bodyA: car,
+    bodyB: glow,
+    stiffness: 0,
+    length: 0,
+    pointA: { x: 0, y: 0 },
+    pointB: { x: 0, y: 70 }
+});
+World.add(world, constraint);
 
 let speed = 0;
 let wheelAngle = 0;
@@ -140,6 +187,7 @@ Events.on(engine, 'beforeUpdate', () => {
     if (car === null) return;
 
     const velocity = Body.getVelocity(car);
+    
     const currentSpeedX = velocity.x;
     const currentSpeedY = velocity.y;
 
@@ -151,30 +199,31 @@ Events.on(engine, 'beforeUpdate', () => {
     const directionY = -Math.cos(angle);
 
     // Скалярное произведение скорости и направления
-    speed = (currentSpeedX * directionX + currentSpeedY * directionY);
+    speed = (currentSpeedX * directionX + currentSpeedY * directionY);    
 
     if (window.carControl) {
-        let opacity = window.carControl.engine_started;
-        let step = .01;
-        let iId = setInterval(() => {
-            if (opacity > glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
-                glow.render.opacity += step;
-            }
-            else if (opacity < glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
-                glow.render.opacity -= step;
-            }
-            else if ((opacity - glow.render.opacity) < step) {
-                clearInterval(iId);
-            }
-            console.log(glow.render.opacity);
+        // let opacity = window.carControl.engine.started;
+        // let step = .01;
+        // let iId = setInterval(() => {
+        //     if (opacity > glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
+        //         glow.render.opacity += step;
+        //     }
+        //     else if (opacity < glow.render.opacity && Math.abs(opacity - glow.render.opacity) > step) {
+        //         glow.render.opacity -= step;
+        //     }
+        //     else if ((opacity - glow.render.opacity) < step) {
+        //         clearInterval(iId);
+        //     }
             
-        }, 50);
+        // }, 50);
 
-        if (window.carControl.power && window.carControl.power > 0) {
-            speed = Math.min(speed + acceleration * window.carControl.power * window.carControl.engine_started, maxSpeed);
+        console.log(speed + acceleration * window.carControl.power * window.carControl.engine.started);
+        
+        if (window.carControl.engine.power && window.carControl.engine.power > 0) {
+            speed = Math.min(speed + acceleration * window.carControl.engine.power * window.carControl.engine.started, maxSpeed);
         }
-        else if (window.carControl.power && window.carControl.power < 0) {            
-            speed = Math.max(speed + acceleration * window.carControl.power * window.carControl.engine_started, -maxSpeed);
+        else if (window.carControl.engine.power && window.carControl.engine.power < 0) {            
+            speed = Math.max(speed + acceleration * window.carControl.engine.power * window.carControl.engine.started, -maxSpeed);
         }
         else {
             if (speed > 0) speed = Math.max(speed - deceleration, 0);
@@ -182,47 +231,49 @@ Events.on(engine, 'beforeUpdate', () => {
         }
 
         // brakes
-        if (window.carControl.brakes) {
-            if (Math.abs(speed) < breakDeceleration) speed = 0;
-            else if (speed > 0) speed -= breakDeceleration;
-            else if (speed < 0) speed += breakDeceleration;
-        }
+        // if (window.carControl.brakes.state) {
+        //     if (Math.abs(speed) < breakDeceleration) speed = 0;
+        //     else if (speed > 0) speed -= breakDeceleration;
+        //     else if (speed < 0) speed += breakDeceleration;
+        // }
 
-        if (wheelAngle < window.carControl.wheel_angle) {
-            wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
-        } else if (wheelAngle > window.carControl.wheel_angle) {
-            wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
-        } else {
-            wheelAngle *= 0.9;
-        }
+        // if (wheelAngle < window.carControl.wheel_angle) {
+        //     wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
+        // } else if (wheelAngle > window.carControl.wheel_angle) {
+        //     wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
+        // } else {
+        //     wheelAngle *= 0.9;
+        // }
     }
 
-    const turnRadius = car.width / Math.tan(wheelAngle);
+    // const turnRadius = car.width / Math.tan(wheelAngle);
 
-    if (Math.abs(wheelAngle) > 0.01) {
-        const angularVelocity = speed / turnRadius; // Угловая скорость
-        console.log(car);
-        Body.setAngularVelocity(car, angularVelocity);
-    } else {
-        // Прямолинейное движение
-        Body.setAngularVelocity(car, 0); 
-    }
+    // if (Math.abs(wheelAngle) > 0.01) {
+    //     const angularVelocity = speed / turnRadius; // Угловая скорость
+    //     console.log(car);
+    //     Body.setAngularVelocity(car, angularVelocity);
+    // } else {
+    //     // Прямолинейное движение
+    //     Body.setAngularVelocity(car, 0); 
+    // }
 
     const velocityX = Math.sin(angle) * speed;
     const velocityY = -Math.cos(angle) * speed;
+    // console.log(speed);
+    
     Body.setVelocity(car, { x: velocityX, y: velocityY });
 
-    if (!fixedCamera) {
-        const { x, y } = car.position;
-        Render.lookAt(render, {
-            min: { x: x - width / 2, y: y - height / 2 },
-            max: { x: x + width / 2, y: y + height / 2 },
-        });
-    }
+    // if (!fixedCamera) {
+    //     const { x, y } = car.position;
+    //     Render.lookAt(render, {
+    //         min: { x: x - width / 2, y: y - height / 2 },
+    //         max: { x: x + width / 2, y: y + height / 2 },
+    //     });
+    // }
 
-    if (typeof lightControl !== 'undefined') {
-        getBodyById(lightControl.id).render.sprite.texture = `/static/assets/${lightControl.str_color}_light.png`;
-    }
+    // if (typeof lightControl !== 'undefined') {
+    //     getBodyById(lightControl.id).render.sprite.texture = `/static/assets/${lightControl.str_color}_light.png`;
+    // }
 });
 
 function levelEnd() {

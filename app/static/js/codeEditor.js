@@ -5,14 +5,6 @@ var pageLoaded = false;
 
 var socket = io();
 
-socket.on('execution_result', function(data) {
-    // if (!data.ok) {
-    //     output_block.classList.add('error');
-    //     output_block.innerHTML = `<pre>${data.error}</pre>`;
-    // }
-    console.log(data);
-});
-
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     lineNumbers: true,
     mode: 'python',
@@ -36,6 +28,7 @@ editor.on('inputRead', function(cm, change) {
     window.localStorage.setItem('code', editor.getValue());
 });
 
+// Исполнение кода
 runCodeButton.addEventListener('click', async () => {
     if (runCodeButton.classList.contains('deactivated')) return;
     runCodeButton.classList.add('deactivated');
@@ -48,4 +41,31 @@ runCodeButton.addEventListener('click', async () => {
     runCodeButton.classList.remove('deactivated');
 });
 
-editor.setValue(baseCodeEditorText);
+// Получение результата выполнения кода
+socket.on('execution_result', function(data) {
+    if (!data.ok) {
+        let cm = document.querySelector('.CodeMirror');
+        output_block.innerHTML = data.error;
+        output_block.classList.add('error');
+        cm.style.transition = '.5s';
+        cm.style.height = '70%';
+        setTimeout(() => {
+            cm.style.transition = 'none';
+        }, 500);
+    }
+    else {
+        window.gameObjects = data.game_objects;
+        window.carControl = window.gameObjects.car;
+    }
+    console.log(data);
+});
+
+// Сохранение кода в localStorage
+editor.on('change', function(cm, change) {
+    if (change.origin !== 'setValue') { 
+        window.localStorage.setItem('code', editor.getValue());
+    }
+});
+
+// Восстановление кода из localStorage
+editor.setValue(window.localStorage.getItem('code'));

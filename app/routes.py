@@ -33,7 +33,7 @@ def handle_execute_code(data):
     code = data.get('code', '')
 
     car = Car()
-    game_objects = [car]
+    game_objects = {'car': car}
     result = execute_code(code, {'car': car, 'game_objects': game_objects}) # здесь из js получать объекты и формировать globals
 
     socketio.emit('execution_result', result)

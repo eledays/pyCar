@@ -1,6 +1,7 @@
 from app.GameObjects import to_json
 
 import multiprocessing
+import json
 
 
 def execute_code(code, globals):
@@ -26,5 +27,5 @@ def execute_code(code, globals):
     return {
         'ok': 'error' not in shared_dict,
         'error': shared_dict.get('error', None),
-        'game_objects': shared_dict.get('game_objects', None)
+        'game_objects': json.loads(shared_dict.get('game_objects', None))
     }
