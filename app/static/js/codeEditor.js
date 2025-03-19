@@ -3,18 +3,15 @@ var output_block = document.querySelector('.code #output');
 
 var pageLoaded = false;
 
-const socket = new WebSocket("ws://localhost:5000/socket.io/?EIO=4&transport=websocket"); 
+var socket = io();
 
-socket.onopen = () => console.log("WebSocket подключен");
-
-socket.onmessage = event => {
-    if (event.data.startsWith("0")) return;  // Открытие соединения    
-
-    const data = JSON.parse(event.data);
-    if (data.result) {
-        document.getElementById("output").textContent = data.result;
-    }
-};
+socket.on('execution_result', function(data) {
+    // if (!data.ok) {
+    //     output_block.classList.add('error');
+    //     output_block.innerHTML = `<pre>${data.error}</pre>`;
+    // }
+    console.log(data);
+});
 
 const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
     lineNumbers: true,
@@ -46,7 +43,7 @@ runCodeButton.addEventListener('click', async () => {
     output_block.innerHTML = '';
     let code = editor.getValue();
     
-    socket.send(JSON.stringify({ code: code }));
+    socket.emit('execute_code', {code});
 
     runCodeButton.classList.remove('deactivated');
 });

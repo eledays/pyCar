@@ -3,9 +3,8 @@ import time
 import asyncio
 
 
-# def to_json():
-#     global gameObjects
-#     return json.dumps(gameObjects, default=lambda o: o.__dict__)
+def to_json(game_objects):
+    return json.dumps(game_objects, default=lambda o: o.__dict__)
 
 
 class Engine:
