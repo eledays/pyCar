@@ -219,7 +219,7 @@ Events.on(engine, 'beforeUpdate', () => {
 
         console.log(speed + acceleration * window.carControl.power * window.carControl.engine.started);
         
-        if (window.carControl.engine.power && window.carControl.engine.power > 0) {
+        if (speed + acceleration * window.carControl.engine.power * window.carControl.engine.started) {
             speed = Math.min(speed + acceleration * window.carControl.engine.power * window.carControl.engine.started, maxSpeed);
         }
         else if (window.carControl.engine.power && window.carControl.engine.power < 0) {            

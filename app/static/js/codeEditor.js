@@ -43,9 +43,11 @@ runCodeButton.addEventListener('click', async () => {
 
 // Получение результата выполнения кода
 socket.on('execution_result', function(data) {
+    console.log('execution_result', data);
+    let cm = document.querySelector('.CodeMirror');
+
     if (!data.ok) {
-        let cm = document.querySelector('.CodeMirror');
-        output_block.innerHTML = data.error;
+        output_block.innerHTML += data.error.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
         output_block.classList.add('error');
         cm.style.transition = '.5s';
         cm.style.height = '70%';
@@ -56,8 +58,24 @@ socket.on('execution_result', function(data) {
     else {
         window.gameObjects = data.game_objects;
         window.carControl = window.gameObjects.car;
+        output_block.classList.remove('error');
+        output_block.innerHTML += data.output.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+        cm.style.transition = '.5s';
+        cm.style.height = '70%';
+        setTimeout(() => {
+            cm.style.transition = 'none';
+        }, 500);
     }
-    console.log(data);
+});
+
+// Получение результата выполнения кода
+socket.on('partial_result', function(data) {
+    console.log(partial_result, data);
+    
+    if (data.ok) {
+        window.gameObjects = data.game_objects;
+        window.carControl = window.gameObjects.car;
+    }
 });
 
 // Сохранение кода в localStorage

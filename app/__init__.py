@@ -1,6 +1,9 @@
 from flask import Flask
 app = Flask(__name__)
 
+from flask_socketio import SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 from app.GameObjects import Car, Color, Light
 
 RED = Color(0)
@@ -14,8 +17,5 @@ gameObjects = {
     'car': car,
     'light': light
 }
-
-from flask_socketio import SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 from app import routes
