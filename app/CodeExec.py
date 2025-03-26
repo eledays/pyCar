@@ -1,3 +1,4 @@
+# from app import app, socketio
 from app.GameObjects import to_json
 
 import multiprocessing
@@ -7,54 +8,52 @@ import sys
 import traceback
 import threading
 import time
+from copy import deepcopy
 
 
-def execute_code(code, globals):
-    def run(shared_dict):
-        locals = {}
+def execute_code(socketio, code, globals, locals={}):
+    def code_run(shared_dict, globals, locals):
+        global do_check, output_capture, error
         try:
             output_capture = io.StringIO()
             sys.stdout = output_capture
 
-            shared_dict['game_objects'] = to_json(globals['game_objects'])
-            shared_dict['output'] = output_capture.getvalue()
-
             exec(code, globals, locals)
 
-            shared_dict['game_objects'] = to_json(globals['game_objects'])
-            shared_dict['output'] = output_capture.getvalue()
-
         except Exception as e:
-            shared_dict['error'] = traceback.format_exc()
+            error = traceback.format_exc()
 
         finally:
+            do_check = False
             sys.stdout = sys.__stdout__
 
-    manager = multiprocessing.Manager()
-    shared_dict = manager.dict()
+    shared_dict = dict()
 
-    def run_thread():
-        while True:
-            if 'game_objects' in shared_dict:
-                print(json.loads(shared_dict['game_objects'])['car']['engine']['started'])
-            time.sleep(.1)
+    code_run_thread = threading.Thread(target=code_run, args=(shared_dict, globals, locals))
+    code_run_thread.start()
 
-    thread = threading.Thread(target=run_thread)
-    thread.start()
+    global do_check, output_capture, error
 
-    process = multiprocessing.Process(target=run, args=(shared_dict,))
-    process.start()
-    process.join(timeout=120)
+    do_check = True
+    last_state = None
+    error = None
+    start_time = time.time()
 
-    if process.is_alive():
-        process.terminate()
-        shared_dict['error'] = 'Time error'
+    while do_check:
+        if time.time() - start_time >= 120:
+            do_check = False
+            sys.stdout = sys.__stdout__
+            return {'error': 'Time error', 'game_objects': last_state}
 
-    print(shared_dict)
+        if last_state != to_json(globals['game_objects']):
+            last_state = to_json(globals['game_objects'])
+            socketio.emit('partial_result', {
+                'ok': error is None,
+                'game_objects': to_json(globals['game_objects']),
+                'output': output_capture.getvalue(),
+                'error': error
+            })
+            output_capture = io.StringIO()
+            sys.stdout = output_capture
 
-    return {
-        'ok': 'error' not in shared_dict,
-        'error': shared_dict.get('error', None),
-        'game_objects': json.loads(shared_dict.get('game_objects', '{}')),
-        'output': shared_dict.get('output', '')
-    }
+        time.sleep(.1)

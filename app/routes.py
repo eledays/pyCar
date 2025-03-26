@@ -4,6 +4,7 @@ from app.GameObjects import Car
 
 from flask import request, jsonify, render_template, redirect, url_for
 import os
+import threading
 
 
 @app.route('/')
@@ -34,6 +35,10 @@ def handle_execute_code(data):
 
     car = Car()
     game_objects = {'car': car}
-    result = execute_code(code, {'car': car, 'game_objects': game_objects}) # здесь из js получать объекты и формировать globals
+    from time import sleep
 
-    socketio.emit('execution_result', result)
+    thread = threading.Thread(target=execute_code, args=(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}))
+    thread.start()
+    # result = execute_code(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}, namespace='/')  # здесь из js получать объекты и формировать globals
+
+    # socketio.emit('execution_result', result)

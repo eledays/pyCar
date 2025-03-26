@@ -4,7 +4,7 @@ import asyncio
 
 
 def to_json(game_objects):
-    return json.dumps(game_objects, default=lambda o: o.__dict__)
+    return json.loads(json.dumps(game_objects, default=lambda o: o.__dict__))
 
 
 class Engine:
@@ -88,6 +88,9 @@ class Car:
         self.brakes = Brakes()
         self.gearbox = Gearbox()
         self.fuel_system = FuelSystem()
+
+    def __repr__(self):
+        return 'Car'
 
 
 class Condition:
