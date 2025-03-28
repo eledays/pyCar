@@ -2,95 +2,22 @@
 {% extends "level.html" %}
 {% block extraVars %}
     <script>
-        var levelId = 2;
-        var fixedCamera = true;
+        var levelId = 1000;
+        var fixedCamera = false;
 
-        basePythonCode = `
-import asyncio
+        var mapProperties = {
+            x: 0,
+            y: 0,
+            width: 5710,
+            height: 5136,
+        }
 
-
-async def _process_tasks():
-    while True:
-        task = await task_queue.get()
-        await task
-        task_queue.task_done()
-
-
-task_queue = asyncio.Queue()
-asyncio.create_task(_process_tasks())
-
-
-class Car:
-    def __init__(self):
-        self.power = 0
-        self.engine_started = True
-        self.wheel_angle = 0
-
-    def forward(self):
-        task_queue.put_nowait(self._forward())
-
-    async def _forward(self):
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
-
-    def backward(self):
-        task_queue.put_nowait(self._backward())
-
-    async def _backward(self):
-        self.power = -1
-        await asyncio.sleep(1)
-        self.power = 0
-
-    def right(self):
-        task_queue.put_nowait(self._right())
-
-    async def _right(self):
-        self.wheel_angle = 30
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
-        self.wheel_angle = 0
-
-    def left(self):
-        task_queue.put_nowait(self._left())
-
-    async def _left(self):
-        self.wheel_angle = -30
-        self.power = 1
-        await asyncio.sleep(1)
-        self.power = 0
-        self.wheel_angle = 0
-
-    def stop(self):
-        task_queue.put_nowait(self._stop())
-
-    async def _stop(self):
-        self.power = 0
-
-
-def sleep(seconds):
-    task_queue.put_nowait(asyncio.sleep(seconds))
-
-
-car = Car()
-`;
-        baseCodeEditorText = `# Теперь ты можешь управлять машиной более точно
-        
-# Выполни функцию forward, backward, right или left у car, чтобы посмотреть, что они делают
-
-`;
-
-        var objects = [
-            {
-                id: null, 
-                type: 'car', 
-                x: window.innerWidth / 4, 
-                y: window.innerHeight - 100, 
-                width: 80, 
-                height: 40,
-                rotate: -Math.PI / 2
-            },
-        ];
+        var carProperties = {
+            x: -1030,
+            y: -1020,
+            width: 146,
+            height: 235,
+            rotate: 0,
+        }
     </script>
 {% endblock %}

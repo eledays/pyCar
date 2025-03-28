@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=terminal" />
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/level.css') }}">
 </head>
 <body>
@@ -24,8 +26,13 @@
         <textarea id="codeEditor"></textarea>
         <p id="output"></p>
         <div class="btnField">
-            <button id="sendButton">Запустить</button>
-            <button id="nextLevelButton" hidden>Далее</button>
+            <button id="sendButton" style="border: 2px solid #fff;">
+                <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 23.6388V5.38875C6 4.97208 6.13944 4.63639 6.41833 4.38167C6.6975 4.12722 7.02306 4 7.395 4C7.51139 4 7.63319 4.01611 7.76042 4.04833C7.88764 4.08083 8.00917 4.12945 8.125 4.19417L22.4862 13.3471C22.699 13.4951 22.8587 13.6664 22.9654 13.8608C23.0718 14.0553 23.125 14.2729 23.125 14.5138C23.125 14.7546 23.0718 14.9722 22.9654 15.1667C22.8587 15.3611 22.699 15.5324 22.4862 15.6804L8.125 24.8333C8.00861 24.8981 7.88639 24.9467 7.75833 24.9792C7.63028 25.0114 7.50819 25.0275 7.39208 25.0275C7.01958 25.0275 6.69444 24.9003 6.41667 24.6458C6.13889 24.3911 6 24.0554 6 23.6388ZM8.77792 21.125L19.1667 14.5138L8.77792 7.9025V21.125Z"/>
+                </svg>
+                <p>Запустить</p>
+            </button>
+            <!-- <button id="nextLevelButton" hidden>Далее</button> -->
         </div>
     </div>
 

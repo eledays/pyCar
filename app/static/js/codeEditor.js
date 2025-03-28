@@ -60,11 +60,14 @@ socket.on('execution_result', function(data) {
         window.carControl = window.gameObjects.car;
         output_block.classList.remove('error');
         output_block.innerHTML += data.output.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-        cm.style.transition = '.5s';
-        cm.style.height = '70%';
-        setTimeout(() => {
-            cm.style.transition = 'none';
-        }, 500);
+        
+        if (data.output) {
+            cm.style.transition = '.5s';
+            cm.style.height = '70%';
+            setTimeout(() => {
+                cm.style.transition = 'none';
+            }, 500);
+        }
     }
 });
 
@@ -91,11 +94,14 @@ socket.on('partial_result', function(data) {
         window.carControl = window.gameObjects.car;
         output_block.classList.remove('error');
         output_block.innerHTML += data.output.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-        cm.style.transition = '.5s';
-        cm.style.height = '70%';
-        setTimeout(() => {
-            cm.style.transition = 'none';
-        }, 500);
+        
+        if (data.output) {
+            cm.style.transition = '.5s';
+            cm.style.height = '70%';
+            setTimeout(() => {
+                cm.style.transition = 'none';
+            }, 500);
+        }
     }
 });
 
