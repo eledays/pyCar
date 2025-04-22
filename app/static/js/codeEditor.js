@@ -1,4 +1,5 @@
 var runCodeButton = document.querySelector('#sendButton');
+var helpButton = document.querySelector('#helpButton');
 var output_block = document.querySelector('.code #output');
 
 var pageLoaded = false;

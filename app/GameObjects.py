@@ -31,6 +31,9 @@ class Headlights:
     
     def off(self):
         self.state = 0
+    
+    def set_value(self, value):
+        self.state = value
         
 
 class Steering:

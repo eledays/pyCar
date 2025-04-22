@@ -10,14 +10,12 @@ import threading
 @app.route('/')
 @app.route('/main')
 def main():
-    levels = sorted([int(e.rstrip('.html')) for e in os.listdir('app/templates/levels')])
+    return redirect(url_for('sandbox'))
 
-    for i, level in enumerate(levels):
-        with open(f'app/templates/levels/{level}.html', 'r', encoding='utf-8') as file:
-            name = file.readline().lstrip('<!-- ').rstrip(' -->\n')
-            levels[i] = level, name
 
-    return render_template('main.html', levels=levels)
+@app.route('/sandbox')
+def sandbox():
+    return render_template('levels/1000.html')
 
 
 @app.route('/<int:level_id>')

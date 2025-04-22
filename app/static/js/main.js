@@ -25,6 +25,31 @@ var glow = null;
 let mainLight = null;
 var speed = 0;
 var wheelAngle = 0;
+var cameraZoom = 1;
+var cameraDeltaX = 0;
+var cameraDeltaY = 0;
+
+addEventListener('wheel', (event) => {
+    cameraZoom += event.deltaY / 500;
+    cameraZoom = Math.max(cameraZoom, 0.5);
+    cameraZoom = Math.min(cameraZoom, 5);
+});
+
+addEventListener('mousemove', (event) => {
+    if (event.buttons !== 1) return;
+    if (event.clientX > window.innerWidth / 2) return;
+
+    cameraDeltaX += (event.movementX / -1) * (cameraZoom / 1);
+    cameraDeltaY += (event.movementY / -1) * (cameraZoom / 1);
+
+    cameraDeltaX = Math.max(cameraDeltaX, -850);
+    cameraDeltaY = Math.max(cameraDeltaY, -1130);
+
+    cameraDeltaX = Math.min(cameraDeltaX, 2823);
+    cameraDeltaY = Math.min(cameraDeltaY, 3596);
+});
+
+helpButton.addEventListener('click', () => window.open('https://google.com', '_blank'));
 
 function resetWorld() {
     World.clear(world);
@@ -131,9 +156,9 @@ function updateCarSpeed() {
     }
 
     // wheel rotate
-    if (wheelAngle < window.carControl.wheel_angle) {
+    if (wheelAngle < window.carControl.steering.angle) {
         wheelAngle = Math.min(wheelAngle + wheelRotateSpeed, maxWheelAngle);
-    } else if (wheelAngle > window.carControl.wheel_angle) {
+    } else if (wheelAngle > window.carControl.steering.angle) {
         wheelAngle = Math.max(wheelAngle - wheelRotateSpeed, -maxWheelAngle);
     } else {
         wheelAngle *= 0.9;
@@ -143,8 +168,8 @@ function updateCarSpeed() {
 function updateCamera() {
     const { x, y } = car.position;
     Render.lookAt(render, {
-        min: { x: x - width / 2, y: y - height / 2 },
-        max: { x: x + width / 2, y: y + height / 2 },
+        min: { x: x - width * cameraZoom / 2 + cameraDeltaX, y: y - height * cameraZoom / 2 + cameraDeltaY },
+        max: { x: x + width * cameraZoom / 2 + cameraDeltaX, y: y + height * cameraZoom / 2 + cameraDeltaY },
     });
 }
 
@@ -164,7 +189,7 @@ Events.on(engine, 'beforeUpdate', () => {
     speed = (currentSpeedX * directionX + currentSpeedY * directionY);    
 
     if (window.carControl) {
-        updateGlow();
+        // updateGlow();
         updateCarSpeed();
     }
 
