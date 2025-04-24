@@ -25,18 +25,30 @@ def level(level_id):
         return render_template(f'levels/{level_id}.html')
     else:
         return redirect('/')
+
+
+@app.route('/execute_code', methods=['POST'])
+def handle_execute_code():
+    code = request.json.get('code', '')
     
-
-@socketio.on('execute_code')
-def handle_execute_code(data):
-    code = data.get('code', '')
-
     car = Car()
     game_objects = {'car': car}
     from time import sleep
 
-    thread = threading.Thread(target=execute_code, args=(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}))
-    thread.start()
+    r = execute_code(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep})
+    return jsonify(r)
+    
+
+# @socketio.on('execute_code')
+# def handle_execute_code(data):
+#     code = data.get('code', '')
+
+#     car = Car()
+#     game_objects = {'car': car}
+#     from time import sleep
+
+#     thread = threading.Thread(target=execute_code, args=(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}))
+#     thread.start()
     # result = execute_code(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}, namespace='/')  # здесь из js получать объекты и формировать globals
 
     # socketio.emit('execution_result', result)

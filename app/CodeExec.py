@@ -43,24 +43,22 @@ def execute_code(socketio, code, globals, locals={}):
     error = None
     start_time = time.time()
 
-    # Пока исполняется код
-    while do_check:
-        # Превышение максимально допустимого времени исполнения (2 минуты) - ошибка
-        if time.time() - start_time >= 120:
-            do_check = False
-            sys.stdout = sys.__stdout__
-            return {'error': 'Time error', 'game_objects': last_state}
+    # Превышение максимально допустимого времени исполнения (2 минуты) - ошибка
+    if time.time() - start_time >= 120:
+        do_check = False
+        sys.stdout = sys.__stdout__
+        return {'error': 'Time error', 'game_objects': last_state}
 
-        # Если изменились игровые объекты, отправляем информацию об этом
-        if last_state != to_json(globals['game_objects']):
-            last_state = to_json(globals['game_objects'])
-            socketio.emit('partial_result', {
-                'ok': error is None,
-                'game_objects': to_json(globals['game_objects']),
-                'output': output_capture.getvalue(),
-                'error': error
-            })
-            output_capture = io.StringIO()
-            sys.stdout = output_capture
+    # Если изменились игровые объекты, отправляем информацию об этом
+    if last_state != to_json(globals['game_objects']):
+        last_state = to_json(globals['game_objects'])
+        r = {
+            'ok': error is None,
+            'game_objects': to_json(globals['game_objects']),
+            'output': output_capture.getvalue(),
+            'error': error
+        }
+        output_capture = io.StringIO()
+        sys.stdout = output_capture
 
-        time.sleep(.1)
+    return r
