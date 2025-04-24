@@ -1,4 +1,4 @@
-from app import app, socketio
+from app import app
 from app.CodeExec import execute_code
 from app.GameObjects import Car
 
@@ -35,20 +35,5 @@ def handle_execute_code():
     game_objects = {'car': car}
     from time import sleep
 
-    r = execute_code(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep})
+    r = execute_code(code, {'car': car, 'game_objects': game_objects, 'sleep': sleep})
     return jsonify(r)
-    
-
-# @socketio.on('execute_code')
-# def handle_execute_code(data):
-#     code = data.get('code', '')
-
-#     car = Car()
-#     game_objects = {'car': car}
-#     from time import sleep
-
-#     thread = threading.Thread(target=execute_code, args=(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}))
-#     thread.start()
-    # result = execute_code(socketio, code, {'car': car, 'game_objects': game_objects, 'sleep': sleep}, namespace='/')  # здесь из js получать объекты и формировать globals
-
-    # socketio.emit('execution_result', result)

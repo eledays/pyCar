@@ -12,7 +12,7 @@ from copy import deepcopy
 
 
 # Функция исполнения кода
-def execute_code(socketio, code, globals, locals={}):
+def execute_code(code, globals, locals={}):
     # Функция исполнения кода, которая будет запущена в отдельном процессе для изоляции
     def code_run(globals, locals):
         global do_check, output_capture, error
