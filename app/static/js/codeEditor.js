@@ -31,9 +31,6 @@ editor.on('inputRead', function(cm, change) {
 
 // Исполнение кода
 runCodeButton.addEventListener('click', async () => {
-    if (runCodeButton.classList.contains('deactivated')) return;
-    runCodeButton.classList.add('deactivated');
-
     output_block.innerHTML = '';
     let code = editor.getValue();
     
